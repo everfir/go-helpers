@@ -1,8 +1,9 @@
 package nacos_test
 
 import (
-	"everfir/go-helpers/internal/helper/nacos"
 	"testing"
+
+	"github.com/everfir/go-helpers/internal/helper/nacos"
 )
 
 func TestNacos(t *testing.T) {

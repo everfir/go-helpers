@@ -3,10 +3,10 @@ package nacos
 import (
 	"context"
 	"encoding/json"
-	"everfir/go-helpers/env"
 	"fmt"
 	"sync"
 
+	"github.com/everfir/go-helpers/env"
 	"github.com/everfir/logger-go"
 	"github.com/everfir/logger-go/structs/field"
 	"github.com/nacos-group/nacos-sdk-go/clients"

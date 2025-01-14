@@ -11,8 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"everfir/go-helpers/middleware"
-
+	"github.com/everfir/go-helpers/middleware"
 	"github.com/gin-gonic/gin"
 )
 

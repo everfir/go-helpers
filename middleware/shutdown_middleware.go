@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"everfir/go-helpers/internal/helper/nacos"
 	"sync"
 
+	"github.com/everfir/go-helpers/internal/helper/nacos"
 	"github.com/gin-gonic/gin"
 )
 

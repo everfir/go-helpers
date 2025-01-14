@@ -1,13 +1,14 @@
 package nacos
 
 import (
-	"everfir/go-helpers/env"
 	"sync"
+
+	"github.com/everfir/go-helpers/env"
 )
 
 var ipMapping func() map[string]string = sync.OnceValue(func() map[string]string {
 	switch env.Idc() {
-	case env.IDC_BEIJING:
+	case env.IDC_BJ:
 		return map[string]string{
 			// env.EnvTest: "192.168.0.8",
 			env.EnvTest: "101.126.144.112",
@@ -25,7 +26,7 @@ var ipMapping func() map[string]string = sync.OnceValue(func() map[string]string
 
 var namespaceMapping func() map[string]string = sync.OnceValue(func() map[string]string {
 	switch env.Idc() {
-	case env.IDC_BEIJING:
+	case env.IDC_BJ:
 		return map[string]string{
 			env.EnvTest: "56240543-0336-4fe4-815d-d2437c2bb11e",
 			env.EnvProd: "a5299e86-dbe0-409a-bdd9-7a7e6ef346ba",

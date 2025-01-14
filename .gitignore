@@ -32,6 +32,7 @@ go.sum
 # 忽略日志文件
 *.log
 logs/
+log/
 
 # 忽略测试覆盖率文件
 coverage.txt
@@ -45,6 +46,7 @@ Thumbs.db
 # 忽略Nacos缓存和日志
 nacos/
 nacos-log/
+cache/
 
 # 忽略临时文件
 tmp/
