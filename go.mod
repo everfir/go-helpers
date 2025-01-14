@@ -8,7 +8,7 @@ require (
 	github.com/nacos-group/nacos-sdk-go v1.1.5
 )
 
-replace github.com/everfir/go-helpers => ./
+// replace github.com/everfir/go-helpers => ./
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.63.80 // indirect
