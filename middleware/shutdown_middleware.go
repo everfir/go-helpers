@@ -4,10 +4,11 @@ import (
 	"sync"
 
 	"github.com/everfir/go-helpers/internal/helper/nacos"
+	"github.com/everfir/go-helpers/internal/structs"
 	"github.com/gin-gonic/gin"
 )
 
-var shutdownConfig func() *nacos.Config[map[string]bool] = sync.OnceValue(func() *nacos.Config[map[string]bool] {
+var shutdownConfig func() *structs.Config[map[string]bool] = sync.OnceValue(func() *structs.Config[map[string]bool] {
 	config, err := nacos.GetConfigFromNacosAndConfigOnChange[map[string]bool]("shutdown.json")
 	if err != nil {
 		panic(err.Error())

@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/everfir/go-helpers/env"
+	"github.com/everfir/go-helpers/internal/structs"
 	"github.com/everfir/logger-go"
 	"github.com/everfir/logger-go/structs/field"
 	"github.com/nacos-group/nacos-sdk-go/clients"
@@ -14,11 +15,6 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 )
-
-type Config[T any] struct {
-	lock sync.RWMutex
-	Data T
-}
 
 var GetNacosClient func() config_client.IConfigClient = sync.OnceValue(func() config_client.IConfigClient {
 	namespace := Namespace()
@@ -42,7 +38,6 @@ var GetNacosClient func() config_client.IConfigClient = sync.OnceValue(func() co
 			Port:   8848,
 		},
 	}
-	fmt.Println(ipAddr, namespace, username, passward)
 
 	configClient, err := clients.CreateConfigClient(map[string]interface{}{
 		"clientConfig":  cc,
@@ -55,7 +50,7 @@ var GetNacosClient func() config_client.IConfigClient = sync.OnceValue(func() co
 	return configClient
 })
 
-func GetConfigFromNacosAndConfigOnChange[T any](dataId string) (config *Config[T], err error) {
+func GetConfigFromNacosAndConfigOnChange[T any](dataId string) (config *structs.Config[T], err error) {
 	cfg, err := GetNacosClient().GetConfig(vo.ConfigParam{
 		DataId: dataId,
 		Group:  env.Env(),
@@ -65,7 +60,7 @@ func GetConfigFromNacosAndConfigOnChange[T any](dataId string) (config *Config[T
 		return
 	}
 
-	config = &Config[T]{lock: sync.RWMutex{}}
+	config = structs.NewConfig[T]()
 	err = json.Unmarshal([]byte(cfg), &config.Data)
 	if err != nil {
 		err = fmt.Errorf("[go-helper] Unmarshal config failed, err: %w", err)
@@ -87,9 +82,7 @@ func GetConfigFromNacosAndConfigOnChange[T any](dataId string) (config *Config[T
 				return
 			}
 
-			config.lock.Lock()
-			defer config.lock.Unlock()
-			config.Data = *conf
+			config.Set(*conf)
 			logger.Info(
 				context.TODO(),
 				"[go-helper] nacos config changed",
