@@ -18,7 +18,11 @@ go get github.com/everfir/go-helpers
 
 ### 运行示例
 ```bash
-go run internal/example/shutdown.go
+// 停服
+go run internal/example/shutdown/shutdown.go
+
+// 灰度
+go run internal/example/gray/gray.go
 ```
 
 ## 项目结构
@@ -45,5 +49,15 @@ go run internal/example/shutdown.go
 {
     "business1": true,
     "business2": false
+}
+
+// gray.json
+{
+   "momo": {
+       "feature_test": {
+            "enable": true,
+            "whitelist": ["9"]
+       }
+   } 
 }
 ```

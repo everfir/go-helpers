@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/everfir/go-helpers/env"
 	"github.com/everfir/go-helpers/middleware"
 	"github.com/gin-gonic/gin"
 )
@@ -70,7 +71,7 @@ func main() {
 
 func makeRequest(i int) {
 	req, _ := http.NewRequest(http.MethodGet, "http://localhost:10083", nil)
-	req.Header.Add("x-everfir-business", "momo")
+	req.Header.Add(env.BusinessKey.String(), "momo")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

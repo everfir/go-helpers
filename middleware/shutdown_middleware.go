@@ -3,6 +3,7 @@ package middleware
 import (
 	"sync"
 
+	"github.com/everfir/go-helpers/env"
 	"github.com/everfir/go-helpers/internal/helper/nacos"
 	"github.com/everfir/go-helpers/internal/structs"
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,7 @@ var shutdownConfig func() *structs.Config[map[string]bool] = sync.OnceValue(func
 
 func ShutdownMiddleware(c *gin.Context) {
 	// 根据header中的字段来确定业务
-	business := c.GetHeader("x-everfir-business")
+	business := c.GetHeader(env.BusinessKey.String())
 	if business == "" {
 		c.Next()
 		return

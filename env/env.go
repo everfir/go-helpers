@@ -1,8 +1,24 @@
 package env
 
 import (
+	"context"
 	"os"
 	"sync"
+)
+
+type ContextKey string
+
+func (key ContextKey) String() string {
+	return string(key)
+}
+
+const (
+	// BusinessKey: 请求中携带业务信息的Header
+	BusinessKey ContextKey = "x-everfir-business"
+	// RouterKey: 请求中携带路由分组信息的Header
+	RouterKey ContextKey = "x-everifr-router"
+	// RouterGroupKey: 响应中携带路由分组信息的Header
+	RouterGroupKey ContextKey = "x-everfir-router-group"
 )
 
 var Env func() string = sync.OnceValue[string](func() string {
@@ -35,4 +51,19 @@ func CN() bool {
 
 func RF() bool {
 	return Idc() == IDC_RF
+}
+
+// Business: 从上下文中获取当前业务
+func Business(ctx context.Context) string {
+	if ctx == nil {
+		return ""
+	}
+
+	iface := ctx.Value(BusinessKey)
+	business, ok := iface.(string)
+	if !ok {
+		return ""
+	}
+
+	return business
 }
