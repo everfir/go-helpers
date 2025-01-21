@@ -15,17 +15,14 @@ func GrayMiddleware(c *gin.Context) {
 		return
 	}
 
-	// business info
+	group := c.GetHeader(env.RouterGroupKey.String())
+
 	ctx := c.Request.Context()
 	ctx = context.WithValue(ctx, env.BusinessKey, business)
+	ctx = context.WithValue(ctx, env.ExperimentGroupKey, group)
 	c.Set(env.BusinessKey.String(), business)
+	c.Set(env.RouterGroupKey.String(), group)
 	c.Request = c.Request.WithContext(ctx)
-
-	// ab分组信息, 由apiGateway填充
-	router := c.GetHeader(env.RouterKey.String())
-	if router != "" {
-		c.Writer.Header().Add(env.RouterGroupKey.String(), router)
-	}
 
 	c.Next()
 }

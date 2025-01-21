@@ -61,10 +61,21 @@ func GetConfigFromNacosAndConfigOnChange[T any](dataId string) (config *structs.
 	}
 
 	config = structs.NewConfig[T]()
-	err = json.Unmarshal([]byte(cfg), &config.Data)
+	err = json.Unmarshal([]byte(cfg), config.Data)
 	if err != nil {
 		err = fmt.Errorf("[go-helper] Unmarshal config failed, err: %w", err)
 		return
+	}
+
+	if v, ok := any(config.Data).(structs.Validator); ok {
+		if !v.Validate() {
+			err = fmt.Errorf("[go-helper] Validate config failed, config:%+v", config.Data)
+			return
+		}
+	}
+
+	if v, ok := any(config.Data).(structs.Formatter); ok {
+		v.Format()
 	}
 
 	err = GetNacosClient().ListenConfig(vo.ConfigParam{
@@ -82,7 +93,7 @@ func GetConfigFromNacosAndConfigOnChange[T any](dataId string) (config *structs.
 				return
 			}
 
-			config.Set(*conf)
+			config.Set(conf)
 			logger.Info(
 				context.TODO(),
 				"[go-helper] nacos config changed",

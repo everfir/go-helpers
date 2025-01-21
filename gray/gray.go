@@ -9,8 +9,8 @@ import (
 	"github.com/everfir/go-helpers/internal/structs"
 )
 
-var grayConfig func() *structs.Config[structs.Gray] = sync.OnceValue(func() *structs.Config[structs.Gray] {
-	config, err := nacos.GetConfigFromNacosAndConfigOnChange[structs.Gray]("gray.json")
+var getGrayConfig func() *structs.Config[structs.GrayConfig] = sync.OnceValue(func() *structs.Config[structs.GrayConfig] {
+	config, err := nacos.GetConfigFromNacosAndConfigOnChange[structs.GrayConfig]("gray.json")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -18,11 +18,33 @@ var grayConfig func() *structs.Config[structs.Gray] = sync.OnceValue(func() *str
 	return config
 })
 
-func Gray(ctx context.Context, feature, user string) bool {
+// Gray: 判断Feature是否可以被访问(结合AB实验 && Feature灰度来判断)
+func Gray(ctx context.Context, feature string) bool {
 	business := env.Business(ctx)
 	if business == "" {
 		return false
 	}
 
-	return grayConfig().Get().Enable(business, feature, user)
+	config := getGrayConfig().Get()
+
+	// 业务没有对应的配置，认为此业务是稳定的业务，直接返回true
+	if _, exist := config[business]; !exist {
+		return true
+	}
+
+	return getGrayConfig().Get()[business].Enable(ctx, feature)
+}
+
+func ExperimentGroup(ctx context.Context, routerKey string) structs.TrafficGroup {
+	business := env.Business(ctx)
+	if business == "" {
+		return structs.TrafficGroupA
+	}
+
+	config := getGrayConfig().Get()
+	if _, exist := config[business]; !exist {
+		return structs.TrafficGroupA
+	}
+
+	return config[business].Group(routerKey)
 }

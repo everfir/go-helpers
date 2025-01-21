@@ -24,39 +24,99 @@ func main() {
 	MockClient(server)
 }
 
+/*
+	测试逻辑：分两组用户测试，先测试A组，在测试B组, 从feature_test1 -> feature_test_10 测试配置如下
+	其中：
+		- 1、2、3、9为实验中的feature
+		- 1、2、4、9为不可靠分支，通过开关控制是否生效, 其中1、4已经回滚， 2、9还在灰度中
+	预期结果：
+		A组: 1, 3, 4, 9 不可用, 其他可用
+		B组: 1, 2, 4 不可用, 其他可用
+
+
+	// 测试配置如下，从feature_test_1 -> feature_test_9, 预期结果：
+	//
+	{
+	 	// 针对helper_test开启灰度配置
+		"helper_test": {
+			"experiment": {
+				"rule": {
+					"mode": 2,	// 混合分流模式(0: 比例模式, 2: 白名单模式, 3: 混合模式)
+					"rate": 0.5,	// 1:1分流
+					"whitelist": [	// 白名单列表
+						"user1",
+						"user2"
+					]
+				},
+
+				// 可进行AB实验的feature列表
+				"feature_list": [
+					"feature_test_1",
+					"feature_test_2",
+					"feature_test_3",
+					"feature_test_9"
+				],
+
+				// A组实验feature列表
+				"experiments_a": [
+					"feature_test_1",
+					"feature_test_2"
+				],
+
+				// B组实验feature列表
+				"experiments_b": [
+					"feature_test_3",
+					"feature_test_9"
+				]
+			},
+
+			// feature灰度功能开关
+			"feature_gray": {
+				"feature_test_1": false,
+				"feature_test_2": true,
+				"feature_test_4": false,
+				"feature_test_9": true
+			}
+		}
+	}
+
+*/
+
 func InitServer() *http.Server {
 	// 创建Gin引擎
-	router := gin.Default()
+	router := gin.New()
 
 	// 添加灰度中间件
 	router.Use(middleware.GrayMiddleware)
 
 	// 设置路由
-	router.GET("/", func(c *gin.Context) {
+	router.GET("/feature/:name", func(c *gin.Context) {
 		ctx := c.Request.Context()
-		accountID := c.GetHeader("account_id")
+		feature := c.Param("name")
+		group := env.ExperimentGroup(ctx)
 
-		if gray.Gray(ctx, "feature_test", accountID) {
+		// 检查灰度状态
+		if gray.Gray(ctx, feature) {
 			logger.Info(
 				ctx,
 				"灰度功能已开启",
-				field.String("feature", "feature_test"),
-				field.String("user", accountID),
+				field.String("feature", feature),
+				field.String("group", group),
 				field.String("business", env.Business(ctx)),
 			)
 
-			c.String(http.StatusOK, "灰度功能已开启，允许访问")
+			c.String(http.StatusOK, fmt.Sprintf("功能 %s 已开启，允许访问", feature))
 			return
 		}
 
 		logger.Info(
 			ctx,
 			"灰度功能未开启",
-			field.String("feature", "feature_test"),
-			field.String("user", accountID),
+			field.String("feature", feature),
+			field.String("group", group),
 			field.String("business", env.Business(ctx)),
 		)
-		c.String(http.StatusUnauthorized, "灰度功能未开启，禁止访问")
+		c.String(http.StatusUnauthorized, fmt.Sprintf("功能 %s 未开启，禁止访问", feature))
 	})
 
 	// 创建HTTP服务
@@ -76,16 +136,19 @@ func InitServer() *http.Server {
 	return server
 }
 
+// MockClient 模拟客户端请求
 func MockClient(server *http.Server) {
-	// 模拟客户端请求
 	var wg sync.WaitGroup
 	wg.Add(1)
+
 	go func() {
 		defer wg.Done()
-		for i := 0; i < 10; i++ {
-			makeRequest(i)
-			time.Sleep(1 * time.Second)
-		}
+
+		// 测试A组用户
+		makeRequest("A")
+
+		// 测试B组用户
+		makeRequest("B")
 	}()
 
 	// 处理优雅关闭
@@ -104,29 +167,59 @@ func MockClient(server *http.Server) {
 	log.Println("服务器已成功关闭")
 }
 
-func makeRequest(i int) {
-	req, err := http.NewRequest(http.MethodGet, "http://localhost:10083", nil)
-	if err != nil {
-		fmt.Printf("\x1b[31m创建请求 %d 失败: %v\x1b[0m\n", i, err)
-		return
+// makeRequest 发送HTTP请求
+func makeRequest(group string) {
+	features := []string{
+		"feature_test_1",
+		"feature_test_2",
+		"feature_test_3",
+		"feature_test_4",
+		"feature_test_5",
+		"feature_test_6",
+		"feature_test_7",
+		"feature_test_8",
+		"feature_test_9",
+		"feature_test_10",
 	}
 
-	req.Header.Add(env.BusinessKey.String(), "momo")
-	req.Header.Add("account_id", fmt.Sprintf("%d", i))
+	succFeatures := []string{}
+	failFeatures := []string{}
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		fmt.Printf("\x1b[31m请求 %d 失败: %v\x1b[0m\n", i, err)
-		return
-	}
-	defer resp.Body.Close()
+	userID := ""
+	for _, feature := range features {
+		req, err := http.NewRequest(http.MethodGet, "http://localhost:10083/feature/"+feature, nil)
+		if err != nil {
+			fmt.Printf("\x1b[31m[%s] 创建请求失败: %v\x1b[0m\n", userID, err)
+			continue
+		}
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		fmt.Printf("\x1b[32m请求 %d 成功: %s\x1b[0m\n", i, resp.Status)
-	case http.StatusUnauthorized:
-		fmt.Printf("\x1b[33m请求 %d: 服务不可用 (灰度未开启)\x1b[0m\n", i)
-	default:
-		fmt.Printf("\x1b[31m请求 %d: 未知状态码 %d\x1b[0m\n", i, resp.StatusCode)
+		req.Header.Add(env.BusinessKey.String(), "helper_test")
+		req.Header.Add(env.RouterGroupKey.String(), group)
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			fmt.Printf("\x1b[31m[%s] 请求 %s 失败: %v\x1b[0m\n", userID, feature, err)
+			continue
+		}
+		defer resp.Body.Close()
+
+		switch resp.StatusCode {
+		case http.StatusOK:
+			succFeatures = append(succFeatures, feature)
+			// fmt.Printf("\x1b[32m[%s] 请求 %s 成功: %s\x1b[0m\n", userID, feature, resp.Status)
+		case http.StatusUnauthorized:
+			failFeatures = append(failFeatures, feature)
+			// fmt.Printf("\x1b[33m[%s] 请求 %s: 服务不可用 (灰度未开启)\x1b[0m\n", userID, feature)
+		default:
+			fmt.Printf("\x1b[31m[%s] 请求 %s: 未知状态码 %d\x1b[0m\n", userID, feature, resp.StatusCode)
+		}
 	}
+
+	logger.Info(
+		context.TODO(),
+		"灰度测试结果",
+		field.String("group", group),
+		field.Any("succ", succFeatures),
+		field.Any("fail", failFeatures),
+	)
 }

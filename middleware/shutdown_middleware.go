@@ -25,7 +25,7 @@ func ShutdownMiddleware(c *gin.Context) {
 		return
 	}
 
-	if shutdownConfig().Data[business] {
+	if shutdownConfig().Get()[business] {
 		c.AbortWithStatus(599)
 		return
 	}

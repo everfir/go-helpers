@@ -15,10 +15,12 @@ func (key ContextKey) String() string {
 const (
 	// BusinessKey: 请求中携带业务信息的Header
 	BusinessKey ContextKey = "x-everfir-business"
-	// RouterKey: 请求中携带路由分组信息的Header
+	// RouterKey: 请求中携带路由信息的Header, 用于AB分组
 	RouterKey ContextKey = "x-everifr-router"
-	// RouterGroupKey: 响应中携带路由分组信息的Header
+	// RouterGroupKey: 请求/响应中携带路由分组信息的Header
 	RouterGroupKey ContextKey = "x-everfir-router-group"
+	// ExperimentGroupKey: 请求中携带实验分组信息的Header
+	ExperimentGroupKey ContextKey = "x-everfir-experiment-group"
 )
 
 var Env func() string = sync.OnceValue[string](func() string {
@@ -66,4 +68,18 @@ func Business(ctx context.Context) string {
 	}
 
 	return business
+}
+
+func ExperimentGroup(ctx context.Context) string {
+	if ctx == nil {
+		return ""
+	}
+
+	iface := ctx.Value(ExperimentGroupKey)
+	group, ok := iface.(string)
+	if !ok {
+		return ""
+	}
+
+	return group
 }
