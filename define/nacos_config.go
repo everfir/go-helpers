@@ -1,4 +1,4 @@
-package structs
+package define
 
 import "sync"
 

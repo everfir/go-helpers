@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/everfir/go-helpers/define"
 	"github.com/everfir/go-helpers/env"
 	"github.com/everfir/go-helpers/internal/structs"
 	"github.com/everfir/logger-go"
@@ -50,7 +51,7 @@ var GetNacosClient func() config_client.IConfigClient = sync.OnceValue(func() co
 	return configClient
 })
 
-func GetConfigFromNacosAndConfigOnChange[T any](client config_client.IConfigClient, dataId string) (config *structs.Config[T], err error) {
+func GetConfigFromNacosAndConfigOnChange[T any](client config_client.IConfigClient, dataId string) (config *define.Config[T], err error) {
 	cfg, err := client.GetConfig(vo.ConfigParam{
 		DataId: dataId,
 		Group:  env.Env(),
@@ -60,7 +61,7 @@ func GetConfigFromNacosAndConfigOnChange[T any](client config_client.IConfigClie
 		return
 	}
 
-	config = structs.NewConfig[T]()
+	config = define.NewConfig[T]()
 	err = json.Unmarshal([]byte(cfg), config.Data)
 	if err != nil {
 		return nil, fmt.Errorf("[go-helper] JSON unmarshal failed: %w", err)

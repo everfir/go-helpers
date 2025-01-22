@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/everfir/go-helpers/define"
 	"github.com/everfir/go-helpers/env"
 	internal_nacos "github.com/everfir/go-helpers/internal/helper/nacos"
-	"github.com/everfir/go-helpers/internal/structs"
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
@@ -133,7 +133,7 @@ func GetEverfirNacosClient() config_client.IConfigClient {
 func GetConfigFromNacosAndConfigOnChange[T any](
 	client config_client.IConfigClient,
 	dataId string,
-) (config *structs.Config[T], err error) {
+) (config *define.Config[T], err error) {
 	return internal_nacos.GetConfigFromNacosAndConfigOnChange[T](client, dataId)
 }
 

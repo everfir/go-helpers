@@ -4,12 +4,13 @@ import (
 	"context"
 	"sync"
 
+	"github.com/everfir/go-helpers/define"
 	"github.com/everfir/go-helpers/env"
 	"github.com/everfir/go-helpers/internal/helper/nacos"
 	"github.com/everfir/go-helpers/internal/structs"
 )
 
-var getGrayConfig func() *structs.Config[structs.GrayConfig] = sync.OnceValue(func() *structs.Config[structs.GrayConfig] {
+var getGrayConfig func() *define.Config[structs.GrayConfig] = sync.OnceValue(func() *define.Config[structs.GrayConfig] {
 	config, err := nacos.GetConfigFromNacosAndConfigOnChange[structs.GrayConfig](nacos.GetNacosClient(), "gray.json")
 	if err != nil {
 		panic(err.Error())
