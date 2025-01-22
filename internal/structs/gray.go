@@ -66,15 +66,13 @@ func (g Gray) Group(user string) TrafficGroup {
 /*
 Enable: 判断功能是否开启(结合AB实验和Feature灰度来判断)
 
-## AB实验判断
+@AB实验判断
+  - 如果功能不在可灰度列表中，则认为功能是稳定功能，进入Feature灰度判断
+  - 如果功能在可灰度列表中，比对用户分组和对应分组中可用的功能列表, 当前用户分组不在可用功能列表中，则返回false，否则进入Feature灰度判断
 
-- 如果功能不在可灰度列表中，则认为功能是稳定功能，进入Feature灰度判断
-- 如果功能在可灰度列表中，比对用户分组和对应分组中可用的功能列表, 当前用户分组不在可用功能列表中，则返回false，否则进入Feature灰度判断
-
-## Feature灰度判断
-
-- 如果Feature灰度配置为空，则认为功能是稳定功能，返回true
-- 如果Feature灰度配置不为空，则根据配置T/F来决定功能是否可用
+@Feature灰度判断
+  - 如果Feature灰度配置为空，则认为功能是稳定功能，返回true
+  - 如果Feature灰度配置不为空，则根据配置T/F来决定功能是否可用
 */
 func (g Gray) Enable(ctx context.Context, feature string) bool {
 	// 如果Feature没有在实验中，说明是稳定功能，则查看功能是否可用

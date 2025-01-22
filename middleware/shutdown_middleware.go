@@ -10,7 +10,7 @@ import (
 )
 
 var shutdownConfig func() *structs.Config[map[string]bool] = sync.OnceValue(func() *structs.Config[map[string]bool] {
-	config, err := nacos.GetConfigFromNacosAndConfigOnChange[map[string]bool]("shutdown.json")
+	config, err := nacos.GetConfigFromNacosAndConfigOnChange[map[string]bool](nacos.GetNacosClient(), "shutdown.json")
 	if err != nil {
 		panic(err.Error())
 	}

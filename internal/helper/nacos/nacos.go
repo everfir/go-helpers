@@ -50,8 +50,8 @@ var GetNacosClient func() config_client.IConfigClient = sync.OnceValue(func() co
 	return configClient
 })
 
-func GetConfigFromNacosAndConfigOnChange[T any](dataId string) (config *structs.Config[T], err error) {
-	cfg, err := GetNacosClient().GetConfig(vo.ConfigParam{
+func GetConfigFromNacosAndConfigOnChange[T any](client config_client.IConfigClient, dataId string) (config *structs.Config[T], err error) {
+	cfg, err := client.GetConfig(vo.ConfigParam{
 		DataId: dataId,
 		Group:  env.Env(),
 	})
@@ -63,8 +63,7 @@ func GetConfigFromNacosAndConfigOnChange[T any](dataId string) (config *structs.
 	config = structs.NewConfig[T]()
 	err = json.Unmarshal([]byte(cfg), config.Data)
 	if err != nil {
-		err = fmt.Errorf("[go-helper] Unmarshal config failed, err: %w", err)
-		return
+		return nil, fmt.Errorf("[go-helper] JSON unmarshal failed: %w", err)
 	}
 
 	if v, ok := any(config.Data).(structs.Validator); ok {
@@ -78,7 +77,7 @@ func GetConfigFromNacosAndConfigOnChange[T any](dataId string) (config *structs.
 		v.Format()
 	}
 
-	err = GetNacosClient().ListenConfig(vo.ConfigParam{
+	err = client.ListenConfig(vo.ConfigParam{
 		DataId: dataId,
 		Group:  env.Env(),
 		OnChange: func(namespace, group, dataId, data string) {

@@ -10,7 +10,7 @@ import (
 )
 
 var getGrayConfig func() *structs.Config[structs.GrayConfig] = sync.OnceValue(func() *structs.Config[structs.GrayConfig] {
-	config, err := nacos.GetConfigFromNacosAndConfigOnChange[structs.GrayConfig]("gray.json")
+	config, err := nacos.GetConfigFromNacosAndConfigOnChange[structs.GrayConfig](nacos.GetNacosClient(), "gray.json")
 	if err != nil {
 		panic(err.Error())
 	}
