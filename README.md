@@ -19,10 +19,10 @@ go get github.com/everfir/go-helpers
 ### 运行示例
 ```bash
 // 停服
-go run internal/example/shutdown/shutdown.go
+ENV=test go run internal/example/shutdown/shutdown.go
 
 // 灰度
-go run internal/example/gray/gray.go
+ENV=test go run internal/example/gray/gray.go
 ```
 
 ## 项目结构

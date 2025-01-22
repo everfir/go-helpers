@@ -24,7 +24,7 @@ const (
 )
 
 var Env func() string = sync.OnceValue[string](func() string {
-	env := os.Getenv("NODE_ENV")
+	env := os.Getenv("ENV")
 	if env == "" {
 		env = "DEFAULT_GROUP"
 	}
