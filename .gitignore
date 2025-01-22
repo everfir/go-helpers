@@ -44,8 +44,6 @@ coverage.out
 Thumbs.db
 
 # 忽略Nacos缓存和日志
-nacos/
-nacos-log/
 cache/
 
 # 忽略临时文件
