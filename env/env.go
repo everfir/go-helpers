@@ -56,6 +56,8 @@ func RF() bool {
 }
 
 // Business: 从上下文中获取当前业务
+// @param ctx: 上下文
+// 前置依赖： middleware.BusinessMiddleware
 func Business(ctx context.Context) string {
 	if ctx == nil {
 		return ""

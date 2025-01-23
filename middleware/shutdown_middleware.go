@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"net/http"
 	"sync"
 
 	"github.com/everfir/go-helpers/define"
@@ -19,9 +20,12 @@ var shutdownConfig func() *define.Config[map[string]bool] = sync.OnceValue(func(
 
 func ShutdownMiddleware(c *gin.Context) {
 	// 根据header中的字段来确定业务
-	business := c.GetHeader(env.BusinessKey.String())
+	business := env.Business(c.Request.Context())
 	if business == "" {
-		c.Next()
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"err_code": http.StatusBadRequest,
+			"err_msg":  "unexcept business field in header",
+		})
 		return
 	}
 
