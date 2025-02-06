@@ -47,5 +47,9 @@ func ExperimentGroup(ctx context.Context, routerKey string) structs.TrafficGroup
 		return structs.TrafficGroupA
 	}
 
+	if routerKey == "" {
+		return structs.TrafficGroupA
+	}
+
 	return config[business].Group(routerKey)
 }
