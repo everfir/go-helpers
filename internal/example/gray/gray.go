@@ -87,7 +87,7 @@ func InitServer() *http.Server {
 	router := gin.New()
 
 	// 添加灰度中间件
-	router.Use(middleware.GrayMiddleware)
+	router.Use(middleware.BaseMiddlewares()...)
 
 	// 设置路由
 	router.GET("/feature/:name", func(c *gin.Context) {
