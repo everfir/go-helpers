@@ -16,11 +16,13 @@ const (
 	// BusinessKey: 请求中携带业务信息的Header
 	BusinessKey ContextKey = "x-everfir-business"
 	// RouterKey: 请求中携带路由信息的Header, 用于AB分组
-	RouterKey ContextKey = "x-everifr-router"
+	RouterKey ContextKey = "x-everifr-router-key"
 	// RouterGroupKey: 请求/响应中携带路由分组信息的Header
 	RouterGroupKey ContextKey = "x-everfir-router-group"
 	// ExperimentGroupKey: 请求中携带实验分组信息的Header
 	ExperimentGroupKey ContextKey = "x-everfir-experiment-group"
+	// 用户的token
+	Authorization ContextKey = "Authorization"
 )
 
 var Env func() string = sync.OnceValue[string](func() string {

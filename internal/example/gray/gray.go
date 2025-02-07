@@ -11,12 +11,14 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/everfir/go-helpers/env"
 	"github.com/everfir/go-helpers/gray"
+	"github.com/everfir/go-helpers/internal/external_api"
 	"github.com/everfir/go-helpers/middleware"
 	"github.com/everfir/logger-go"
 	"github.com/everfir/logger-go/structs/field"
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -145,10 +147,14 @@ func MockClient(server *http.Server) {
 		defer wg.Done()
 
 		// 测试A组用户
-		makeRequest("A")
+		makeRequest("", "A")
 
 		// 测试B组用户
-		makeRequest("B")
+		makeRequest("", "B")
+
+		// 测试routerKey
+		makeRequest("test key", "")
+
 	}()
 
 	// 处理优雅关闭
@@ -168,7 +174,7 @@ func MockClient(server *http.Server) {
 }
 
 // makeRequest 发送HTTP请求
-func makeRequest(group string) {
+func makeRequest(routerKey string, group string) {
 	features := []string{
 		"feature_test_1",
 		"feature_test_2",
@@ -194,7 +200,17 @@ func makeRequest(group string) {
 		}
 
 		req.Header.Add(env.BusinessKey.String(), "helper_test")
-		req.Header.Add(env.RouterGroupKey.String(), group)
+		token := external_api.GetAccountCfg().Get().GuestToken
+		req.Header.Add(env.Authorization.String(), token)
+		// RouterKey不为空则测试根据RouterKey获取实验组，group不为空则指定实验组进行测试
+		if routerKey != "" {
+			req.Header.Add(env.RouterKey.String(), routerKey)
+		}
+		if group != "" {
+			req.Header.Add(env.RouterGroupKey.String(), group)
+		}
+		logger.Info(req.Context(), "发送请求", field.String("feature", feature), field.String("group", group),
+			field.String("routerKey", routerKey), field.String("token", token))
 
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
