@@ -68,8 +68,8 @@ func GetConfigFromNacosAndConfigOnChange[T any](client config_client.IConfigClie
 	}
 
 	if v, ok := any(config.Data).(structs.Validator); ok {
-		if !v.Validate() {
-			err = fmt.Errorf("[go-helper] Validate config failed, config:%+v", config.Data)
+		if e := v.Validate(); e != nil {
+			err = fmt.Errorf("[go-helper] Validate config failed, config:%w", e)
 			return
 		}
 	}

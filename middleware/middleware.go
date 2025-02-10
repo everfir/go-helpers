@@ -6,7 +6,6 @@ func BaseMiddlewares() []gin.HandlerFunc {
 	return []gin.HandlerFunc{
 		BusinessMiddleware,
 		TraceMiddleware,
-		GrayMiddleware,
 		ShutdownMiddleware,
 	}
 }

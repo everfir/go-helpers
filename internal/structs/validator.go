@@ -1,5 +1,5 @@
 package structs
 
 type Validator interface {
-	Validate() bool
+	Validate() error
 }

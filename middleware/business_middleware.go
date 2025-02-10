@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -22,8 +23,12 @@ var getBusinessConfig func() *define.Config[structs.BusinessConfig] = sync.OnceV
 })
 
 func BusinessMiddleware(c *gin.Context) {
-	// 根据header中的字段来确定业务
-	business := c.GetHeader(env.BusinessKey.String())
+	// 根据header中的字段来确定业务信息
+	business := strings.ToLower(c.GetHeader(env.BusinessKey.String()))
+	platform := strings.ToLower(c.GetHeader(env.PlatformKey.String()))
+	version := strings.ToLower(c.GetHeader(env.VersionKey.String()))
+	device := strings.ToLower(c.GetHeader(env.DeviceKey.String()))
+
 	valid := getBusinessConfig().Get().Valid(business)
 	if !valid {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -35,9 +40,10 @@ func BusinessMiddleware(c *gin.Context) {
 
 	ctx := c.Request.Context()
 	ctx = context.WithValue(ctx, env.BusinessKey, business)
-	c.Set(env.BusinessKey.String(), business)
+	ctx = context.WithValue(ctx, env.PlatformKey, platform)
+	ctx = context.WithValue(ctx, env.DeviceKey, device)
+	ctx = context.WithValue(ctx, env.VersionKey, version)
 	c.Request = c.Request.WithContext(ctx)
 
 	c.Next()
-
 }
