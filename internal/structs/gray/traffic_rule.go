@@ -253,6 +253,7 @@ func makeParam(ctx context.Context, accountInfo *structs.AccountInfo) (ret map[s
 	d["device"] = env.Device(ctx)
 	d["platform"] = env.Platform(ctx)
 	d["version"] = env.Version(ctx)
+	d["app_type"] = env.AppType(ctx)
 
 	ret["user"] = m
 	ret["app"] = d
