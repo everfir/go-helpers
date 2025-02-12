@@ -28,6 +28,7 @@ func BusinessMiddleware(c *gin.Context) {
 	platform := strings.ToLower(c.GetHeader(env.PlatformKey.String()))
 	version := strings.ToLower(c.GetHeader(env.VersionKey.String()))
 	device := strings.ToLower(c.GetHeader(env.DeviceKey.String()))
+	appType := strings.ToLower(c.GetHeader(env.AppTypeKey.String()))
 
 	valid := getBusinessConfig().Get().Valid(business)
 	if !valid {
@@ -43,6 +44,7 @@ func BusinessMiddleware(c *gin.Context) {
 	ctx = context.WithValue(ctx, env.PlatformKey, platform)
 	ctx = context.WithValue(ctx, env.DeviceKey, device)
 	ctx = context.WithValue(ctx, env.VersionKey, version)
+	ctx = context.WithValue(ctx, env.AppTypeKey, appType)
 	c.Request = c.Request.WithContext(ctx)
 
 	c.Next()
