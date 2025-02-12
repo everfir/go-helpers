@@ -32,6 +32,8 @@ const (
 	DeviceKey ContextKey = "x-everfir-device"
 	// VersionKey: 请求头&上下文中携带客户端版本信息
 	VersionKey ContextKey = "x-everfir-version"
+	// AppTypeKey: 请求头&上下文中携带用户App类型信息
+	AppTypeKey ContextKey = "x-everfir-app-type"
 	// PlatformKey: 请求头&上下文中携带平台信息
 	PlatformKey ContextKey = "x-everfir-platform"
 	// BusinessKey: 请求头中携带业务信息
@@ -69,4 +71,17 @@ const (
 	Dev_PC     TDevice = "pc"
 	Dev_IPad   TDevice = "ipad"
 	Dev_Unknow TDevice = ""
+)
+
+type TAppType string
+
+func (a TAppType) String() string {
+	return string(a)
+}
+
+const (
+	AppType_App     TAppType = "app"
+	AppType_MiniApp TAppType = "miniapp"
+	AppType_Web     TAppType = "web"
+	AppType_Unknow  TAppType = "" // 可选的，表示未知类型
 )

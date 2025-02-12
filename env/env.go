@@ -256,6 +256,34 @@ func Version(ctx context.Context) string {
 	return version
 }
 
+// AppType 根据给定的 context 获取应用类型（app、miniapp 或 web）。
+// 它从 context 中提取存储的 AppTypeKey 值，并尝试将其转换为 TAppType。
+func AppType(ctx context.Context) TAppType {
+	if ctx == nil {
+		return ""
+	}
+
+	iface := ctx.Value(AppTypeKey)
+	appType, ok := iface.(string)
+	if !ok {
+		return ""
+	}
+
+	return TAppType(strings.ToLower(appType))
+}
+
+func App(ctx context.Context) bool {
+	return AppType(ctx) == AppType_App
+}
+
+func MiniApp(ctx context.Context) bool {
+	return AppType(ctx) == AppType_MiniApp
+}
+
+func Web(ctx context.Context) bool {
+	return AppType(ctx) == AppType_Web
+}
+
 // TestSetAccountInfo:justForTest
 func TestSetAccountInfo(ctx context.Context, id uint64) context.Context {
 	if !Test() {
