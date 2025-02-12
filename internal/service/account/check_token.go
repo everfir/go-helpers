@@ -8,13 +8,22 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/everfir/go-helpers/env"
 	"github.com/everfir/go-helpers/internal/structs"
 	util_http "github.com/everfir/go-helpers/internal/util/http"
 )
 
 const (
-	checkTokenUrl string = "http://user-account:8080/account/check_token"
+	checkTokenUrl     string = "http://user-account:8080/account/check_token"
+	testCheckTokenUrl string = "http://101.126.81.38:10003/account/check_token"
 )
+
+func getTokenUrl() string {
+	if env.Prod() {
+		return checkTokenUrl
+	}
+	return testCheckTokenUrl
+}
 
 type CheckTokenReq struct {
 	Token string `json:"token,omitempty"`
@@ -44,7 +53,7 @@ func CheckToken(ctx context.Context, token string) (*CheckTokenResp, error) {
 		return nil, err
 	}
 
-	request, err := http.NewRequestWithContext(ctx, http.MethodPost, checkTokenUrl, bytes.NewReader(reqBytes))
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, getTokenUrl(), bytes.NewReader(reqBytes))
 	if err != nil {
 		return nil, err
 	}
