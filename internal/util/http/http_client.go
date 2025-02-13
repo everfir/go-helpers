@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/everfir/go-helpers/env"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 )
@@ -23,6 +24,13 @@ func (c *TraceTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	// Get the context from the request
 	ctx := req.Context()
 	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
+
+	// header
+	req.Header.Add(env.BusinessKey.String(), env.Business(ctx))
+	req.Header.Add(env.VersionKey.String(), env.Version(ctx))
+	req.Header.Add(env.PlatformKey.String(), env.Platform(ctx).String())
+	req.Header.Add(env.DeviceKey.String(), env.Device(ctx).String())
+	req.Header.Add(env.AppTypeKey.String(), env.AppType(ctx).String())
 
 	// Call the next RoundTripper (default transport in this case)
 	resp, err := c.transport.RoundTrip(req)

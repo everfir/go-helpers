@@ -40,8 +40,6 @@ const (
 	BusinessKey ContextKey = "x-everfir-business"
 	// AccountInfoKey: 用户信息，请求头&上下文中携带用户信息
 	AccountInfoKey ContextKey = "x-everfir-account-info"
-	// ExperimentGroupKey: 请求头中携带实验分组信息
-	ExperimentGroupKey ContextKey = "x-everfir-experiment-group"
 )
 
 type TDevicePlatform string
