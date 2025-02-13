@@ -4,8 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/everfir/go-helpers/define"
+	"github.com/everfir/go-helpers/internal/helper/nacos"
 	"io"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/everfir/go-helpers/env"
@@ -13,16 +16,25 @@ import (
 	util_http "github.com/everfir/go-helpers/internal/util/http"
 )
 
-const (
-	checkTokenUrl     string = "http://user-account:8080/account/check_token"
-	testCheckTokenUrl string = "http://101.126.81.38:10003/account/check_token"
-)
+var getAccountConfig func() *define.Config[structs.AccountConfig] = sync.OnceValue(func() *define.Config[structs.AccountConfig] {
+	config, err := nacos.GetConfigFromNacosAndConfigOnChange[structs.AccountConfig](nacos.GetNacosClient(), "account_config.json")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return config
+})
+
+//const (
+//	checkTokenUrl     string = "http://user-account:8080/account/check_token"
+//	testCheckTokenUrl string = "http://101.126.81.38:10003/account/check_token"
+//)
 
 func getTokenUrl() string {
 	if env.Prod() {
-		return checkTokenUrl
+		return getAccountConfig().Get().UrlEnv[env.EnvProd]
 	}
-	return testCheckTokenUrl
+	return getAccountConfig().Get().UrlEnv[env.EnvTest]
 }
 
 type CheckTokenReq struct {
