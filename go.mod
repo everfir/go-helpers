@@ -4,10 +4,13 @@ go 1.22.0
 
 require (
 	github.com/everfir/logger-go v0.3.0
+	github.com/expr-lang/expr v1.16.9
 	github.com/gin-gonic/gin v1.10.0
 	github.com/nacos-group/nacos-sdk-go v1.1.5
 	github.com/stretchr/testify v1.9.0
+	github.com/zeebo/assert v1.3.0
 	github.com/zeebo/xxh3 v1.0.2
+	go.opentelemetry.io/otel v1.29.0
 )
 
 replace github.com/everfir/go-helpers => ./
@@ -21,7 +24,6 @@ require (
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/expr-lang/expr v1.16.9 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
@@ -49,7 +51,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
-	go.opentelemetry.io/otel v1.29.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.29.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.29.0 // indirect
 	go.opentelemetry.io/otel/metric v1.29.0 // indirect

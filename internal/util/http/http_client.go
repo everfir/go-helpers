@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/everfir/go-helpers/env"
+	"github.com/everfir/logger-go"
+	"github.com/everfir/logger-go/structs/field"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 )
@@ -26,11 +28,12 @@ func (c *TraceTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
 
 	// header
-	req.Header.Add(env.BusinessKey.String(), env.Business(ctx))
-	req.Header.Add(env.VersionKey.String(), env.Version(ctx))
-	req.Header.Add(env.PlatformKey.String(), env.Platform(ctx).String())
-	req.Header.Add(env.DeviceKey.String(), env.Device(ctx).String())
-	req.Header.Add(env.AppTypeKey.String(), env.AppType(ctx).String())
+	req.Header.Set(env.BusinessKey.String(), env.Business(ctx))
+	req.Header.Set(env.VersionKey.String(), env.Version(ctx))
+	req.Header.Set(env.PlatformKey.String(), env.Platform(ctx).String())
+	req.Header.Set(env.DeviceKey.String(), env.Device(ctx).String())
+	req.Header.Set(env.AppTypeKey.String(), env.AppType(ctx).String())
+	logger.Info(ctx, "http request", field.Any("header", req.Header))
 
 	// Call the next RoundTripper (default transport in this case)
 	resp, err := c.transport.RoundTrip(req)

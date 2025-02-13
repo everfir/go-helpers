@@ -250,10 +250,10 @@ func makeParam(ctx context.Context, accountInfo *structs.AccountInfo) (ret map[s
 	m["wechat_union_id"] = accountInfo.WechatUnionId
 
 	d := make(map[string]interface{}, 0)
-	d["device"] = env.Device(ctx)
-	d["platform"] = env.Platform(ctx)
+	d["device"] = env.Device(ctx).String()
+	d["platform"] = env.Platform(ctx).String()
 	d["version"] = env.Version(ctx)
-	d["app_type"] = env.AppType(ctx)
+	d["app_type"] = env.AppType(ctx).String()
 
 	ret["user"] = m
 	ret["app"] = d
