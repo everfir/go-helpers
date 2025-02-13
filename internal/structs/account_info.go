@@ -1,5 +1,9 @@
 package structs
 
+type AccountConfig struct {
+	UrlEnv map[string]string `json:"url_env"`
+}
+
 type AccountInfo struct {
 	AccountId     uint64   `json:"account_id,omitempty"`
 	Role          uint8    `json:"role"`
