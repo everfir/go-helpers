@@ -31,9 +31,9 @@ func Experimental(ctx context.Context, feature string) bool {
 
 	config := getGrayConfig().Get()
 
-	// 业务没有对应的配置，认为此业务是稳定的业务，直接返回true
+	// 业务没有对应的配置，认为此业务是稳定的业务，直接返回 false
 	if _, exist := config[business]; !exist {
-		return true
+		return false
 	}
 
 	return getGrayConfig().Get()[business].Experimental(ctx, feature)
