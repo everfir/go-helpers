@@ -12,12 +12,12 @@ var ipMapping func() map[string]string = sync.OnceValue(func() map[string]string
 		return map[string]string{
 			// env.EnvTest: "192.168.0.8",
 			env.EnvTest: "101.126.144.112",
-			env.EnvProd: "192.168.0.71",
+			env.EnvProd: "192.168.0.49",
 		}
 	case env.IDC_RF:
 		return map[string]string{
 			env.EnvTest: "192.168.0.8",
-			env.EnvProd: "192.168.0.71",
+			env.EnvProd: "192.168.0.49",
 		}
 	default:
 		return map[string]string{}
