@@ -165,15 +165,7 @@ func (rule *TrafficRule) Group(ctx context.Context) (group TrafficGroup) {
 	}
 	switch rule.Mode {
 	case TrafficModeRate:
-		if rule.Rate == 0 {
-			break
-		}
-
-		hash := encode.HashString(fmt.Sprintf("%d", accountInfo.AccountId))
-		bucket := hash % 1000
-		threshold := uint64(rule.Rate * float64(1000))
-
-		if bucket < threshold {
+		if rule.rateHit(accountInfo.AccountId) {
 			group = TrafficGroupB
 		}
 
@@ -192,24 +184,24 @@ func (rule *TrafficRule) Group(ctx context.Context) (group TrafficGroup) {
 			break
 		}
 
-		if val.(bool) {
+		if val.(bool) && rule.rateHit(accountInfo.AccountId) {
 			group = TrafficGroupB
 		}
 
 	case TrafficModeDevice:
 		device := env.Device(ctx)
-		if _, exist := slice.Find[string](rule.Targets, string(device)); exist {
+		if _, exist := slice.Find[string](rule.Targets, string(device)); exist && rule.rateHit(accountInfo.AccountId) {
 			group = TrafficGroupB
 		}
 
 	case TrafficModeVersion:
 		version := env.Version(ctx)
-		if _, exist := slice.Find[string](rule.Targets, string(version)); exist {
+		if _, exist := slice.Find[string](rule.Targets, string(version)); exist && rule.rateHit(accountInfo.AccountId) {
 			group = TrafficGroupB
 		}
 	case TrafficModePlatform:
 		platform := env.Platform(ctx)
-		if _, exist := slice.Find[string](rule.Targets, string(platform)); exist {
+		if _, exist := slice.Find[string](rule.Targets, string(platform)); exist && rule.rateHit(accountInfo.AccountId) {
 			group = TrafficGroupB
 		}
 	default:
@@ -221,6 +213,22 @@ func (rule *TrafficRule) Group(ctx context.Context) (group TrafficGroup) {
 	}
 
 	return group
+}
+
+func (rule *TrafficRule) rateHit(accountId uint64) bool {
+	if rule.Rate == 0 {
+		return false
+	}
+
+	hash := encode.HashString(fmt.Sprintf("%d", accountId))
+	bucket := hash % 1000
+	threshold := uint64(rule.Rate * float64(1000))
+
+	if bucket < threshold {
+		return true
+	}
+
+	return false
 }
 
 func makeParam(ctx context.Context, accountInfo *structs.AccountInfo) (ret map[string]interface{}) {
