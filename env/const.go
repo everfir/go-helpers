@@ -16,6 +16,7 @@ const (
 
 type ContextKey string
 
+// String 将ContextKey转为string
 func (key ContextKey) String() string {
 	return string(key)
 }
@@ -44,6 +45,7 @@ const (
 
 type TDevicePlatform string
 
+// String 将TDevicePlatform转为string
 func (p TDevicePlatform) String() string {
 	return string(p)
 }

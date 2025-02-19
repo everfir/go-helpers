@@ -65,7 +65,7 @@ func main() {
 	                },
 	                {
 	                    "mode": 1,	// 规则分流
-	                    "expresion": "user.account_id % 2 == 0"
+	                    "expression": "user.account_id % 2 == 0"
 	                }
 	            ]
 	        }

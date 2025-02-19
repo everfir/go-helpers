@@ -15,6 +15,7 @@ import (
 	"github.com/expr-lang/expr/vm"
 )
 
+// TrafficMode 分流模式
 type TrafficMode uint8
 
 const (
@@ -24,9 +25,10 @@ const (
 	TrafficModeVersion                     // 按版本分流
 	TrafficModePlatform                    // 按平台分流 android/ios/linux/windows/macos/ipados
 
-	TrafficModeUnknow = iota + 1 // 按平台分流 android/ios/linux/windows/macos/ipados
+	TrafficModeUnknow = iota + 1 // 未知分流
 )
 
+// TrafficGroup 分流组
 type TrafficGroup string
 
 const (
@@ -35,18 +37,18 @@ const (
 	TrafficGroupUnKnow TrafficGroup = ""
 )
 
-// TrafficRule: 分流策略
+// TrafficRule 分流策略
 type TrafficRule struct {
-	Mode      TrafficMode `json:"mode"`      // 分流模式
-	Rate      float64     `json:"rate"`      // 分流比例, 仅在Rate模式下生效
-	Expresion string      `json:"expresion"` // 表达式，在Rule模式下生效
-	Targets   []string    `json:"targets"`   // 匹配目标，在Device/Version/Platform
-	WhiteList []string    `json:"whitelist"` // 白名单, 全局有效
+	Mode       TrafficMode `json:"mode"`       // 分流模式
+	Rate       float64     `json:"rate"`       // 分流比例, 仅在Rate模式下生效
+	Expression string      `json:"expression"` // 表达式，在Rule模式下生效
+	Targets    []string    `json:"targets"`    // 匹配目标，在Device/Version/Platform
+	WhiteList  []string    `json:"whitelist"`  // 白名单, 全局有效
 
-	expresionProgram *vm.Program
+	expressionProgram *vm.Program
 }
 
-// Format: 格式化配置
+// Format 格式化配置
 func (rule *TrafficRule) Format() {
 	sort.Strings(rule.Targets)
 	sort.Strings(rule.WhiteList)
@@ -77,7 +79,7 @@ func (rule *TrafficRule) Format() {
 //
 //	rule := &TrafficRule{
 //	    Mode:      TrafficModeRule,
-//	    Expresion: "user.age > 18",
+//	    Expression: "user.age > 18",
 //	}
 //	err := rule.Validate()
 //	if err != nil {
@@ -110,9 +112,9 @@ func (rule *TrafficRule) Validate() error {
 	case TrafficModeRule:
 		// 如果 TrafficMode 是 TrafficModeRule，编译表达式并检查是否有效
 		var err error
-		rule.expresionProgram, err = expr.Compile(rule.Expresion, expr.AsBool())
+		rule.expressionProgram, err = expr.Compile(rule.Expression, expr.AsBool())
 		if err != nil {
-			return fmt.Errorf("Compile rule.Expresion[%s] failed: %w", rule.Expresion, err)
+			return fmt.Errorf("Compile rule.Expression[%s] failed: %w", rule.Expression, err)
 		}
 
 	case TrafficModeDevice, TrafficModeVersion, TrafficModePlatform:
@@ -165,51 +167,43 @@ func (rule *TrafficRule) Group(ctx context.Context) (group TrafficGroup) {
 	}
 	switch rule.Mode {
 	case TrafficModeRate:
-		if rule.Rate == 0 {
-			break
-		}
-
-		hash := encode.HashString(fmt.Sprintf("%d", accountInfo.AccountId))
-		bucket := hash % 1000
-		threshold := uint64(rule.Rate * float64(1000))
-
-		if bucket < threshold {
+		if rule.rateHit(accountInfo.AccountId) {
 			group = TrafficGroupB
 		}
 
 	case TrafficModeRule:
 		param := makeParam(ctx, &accountInfo)
 		param["SliceHas"] = contains
-		val, err := expr.Run(rule.expresionProgram, param)
+		val, err := expr.Run(rule.expressionProgram, param)
 		if err != nil {
 			logger.Warn(
 				context.TODO(),
-				"run expresion failed",
+				"run expression failed",
 				field.String("err", err.Error()),
-				field.String("expresion", rule.Expresion),
+				field.String("expression", rule.Expression),
 				field.Any("param", param),
 			)
 			break
 		}
 
-		if val.(bool) {
+		if val.(bool) && rule.rateHit(accountInfo.AccountId) {
 			group = TrafficGroupB
 		}
 
 	case TrafficModeDevice:
 		device := env.Device(ctx)
-		if _, exist := slice.Find[string](rule.Targets, string(device)); exist {
+		if _, exist := slice.Find[string](rule.Targets, string(device)); exist && rule.rateHit(accountInfo.AccountId) {
 			group = TrafficGroupB
 		}
 
 	case TrafficModeVersion:
 		version := env.Version(ctx)
-		if _, exist := slice.Find[string](rule.Targets, string(version)); exist {
+		if _, exist := slice.Find[string](rule.Targets, string(version)); exist && rule.rateHit(accountInfo.AccountId) {
 			group = TrafficGroupB
 		}
 	case TrafficModePlatform:
 		platform := env.Platform(ctx)
-		if _, exist := slice.Find[string](rule.Targets, string(platform)); exist {
+		if _, exist := slice.Find[string](rule.Targets, string(platform)); exist && rule.rateHit(accountInfo.AccountId) {
 			group = TrafficGroupB
 		}
 	default:
@@ -223,6 +217,24 @@ func (rule *TrafficRule) Group(ctx context.Context) (group TrafficGroup) {
 	return group
 }
 
+// rateHit 根据 TrafficRule 的 Rate 字段判断用户是否命中流量控制规则
+func (rule *TrafficRule) rateHit(accountId uint64) bool {
+	if rule.Rate == 0 {
+		return false
+	}
+
+	hash := encode.HashString(fmt.Sprintf("%d", accountId))
+	bucket := hash % 1000
+	threshold := uint64(rule.Rate * float64(1000))
+
+	if bucket < threshold {
+		return true
+	}
+
+	return false
+}
+
+// makeParam 构造用户和平台参数
 func makeParam(ctx context.Context, accountInfo *structs.AccountInfo) (ret map[string]interface{}) {
 	templateIds := make([]interface{}, 0, len(accountInfo.TemplateIDs))
 	for _, id := range accountInfo.TemplateIDs {

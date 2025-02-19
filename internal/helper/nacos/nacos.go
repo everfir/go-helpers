@@ -17,6 +17,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/vo"
 )
 
+// GetNacosClient 获取nacos客户端
 var GetNacosClient func() config_client.IConfigClient = sync.OnceValue(func() config_client.IConfigClient {
 	namespace := Namespace()
 	ipAddr := NacosIp()
@@ -51,6 +52,7 @@ var GetNacosClient func() config_client.IConfigClient = sync.OnceValue(func() co
 	return configClient
 })
 
+// GetConfigFromNacosAndConfigOnChange 获取nacos配置并监听变化
 func GetConfigFromNacosAndConfigOnChange[T any](client config_client.IConfigClient, dataId string) (config *define.Config[T], err error) {
 	cfg, err := client.GetConfig(vo.ConfigParam{
 		DataId: dataId,

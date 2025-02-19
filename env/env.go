@@ -168,6 +168,7 @@ func AccountInfo(ctx context.Context) (info structs.AccountInfo) {
 	return
 }
 
+// Platform 从上下文中获取系统平台信息，返回对应的 TDevicePlatform 类型
 func Platform(ctx context.Context) TDevicePlatform {
 	if ctx == nil {
 		return DP_Unknow
@@ -242,6 +243,7 @@ func IPad(ctx context.Context) bool {
 	return Device(ctx) == Dev_IPad
 }
 
+// Version 从上下文中获取客户端版本信息
 func Version(ctx context.Context) string {
 	if ctx == nil {
 		return ""
@@ -272,14 +274,17 @@ func AppType(ctx context.Context) TAppType {
 	return TAppType(strings.ToLower(appType))
 }
 
+// App 判断应用是否为 app 类型
 func App(ctx context.Context) bool {
 	return AppType(ctx) == AppType_App
 }
 
+// MiniApp 判断应用是否为 miniapp 类型
 func MiniApp(ctx context.Context) bool {
 	return AppType(ctx) == AppType_MiniApp
 }
 
+// Web 判断应用是否为 web 类型
 func Web(ctx context.Context) bool {
 	return AppType(ctx) == AppType_Web
 }

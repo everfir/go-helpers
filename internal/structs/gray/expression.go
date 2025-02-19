@@ -2,5 +2,5 @@ package gray
 
 // ctime
 
-type Expresion struct {
+type Expression struct {
 }

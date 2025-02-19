@@ -137,7 +137,7 @@ func GetConfigFromNacosAndConfigOnChange[T any](
 	return internal_nacos.GetConfigFromNacosAndConfigOnChange[T](client, dataId)
 }
 
-// Publish: 向Nacos发布配置
+// Publish 向Nacos发布配置
 //
 // 参数：
 //   - client: Nacos配置客户端

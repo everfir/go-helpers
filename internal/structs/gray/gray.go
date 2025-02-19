@@ -7,14 +7,17 @@ import (
 	"github.com/everfir/logger-go/structs/field"
 )
 
+// GrayConfig 灰度配置
 type GrayConfig map[string]Gray // key: business
 
+// Format 格式化灰度配置
 func (gc *GrayConfig) Format() {
 	for _, gray := range *gc {
 		gray.Format()
 	}
 }
 
+// Validate 校验灰度配置
 func (gc *GrayConfig) Validate() error {
 	for _, gray := range *gc {
 		if err := gray.Validate(); err != nil {
@@ -28,14 +31,14 @@ type Gray struct {
 	Feature map[string]*FeatureConfig `json:"feature"`
 }
 
-// Format: 格式化配置
+// Format 格式化配置
 func (g *Gray) Format() {
 	for _, config := range g.Feature {
 		config.Format()
 	}
 }
 
-// Validate: 校验配置
+// Validate 校验配置
 func (g Gray) Validate() error {
 	for _, config := range g.Feature {
 		if err := config.Validate(); err != nil {
@@ -45,6 +48,7 @@ func (g Gray) Validate() error {
 	return nil
 }
 
+// Group 根据灰度配置获取分组
 func (g Gray) Group(ctx context.Context, feature string) TrafficGroup {
 	if _, exist := g.Feature[feature]; !exist {
 		return TrafficGroupA
