@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/everfir/go-helpers/internal/structs"
+	"github.com/everfir/go-helpers/define"
 )
 
 // Env 获取环境变量并设置默认值
@@ -153,13 +153,13 @@ func Business(ctx context.Context) string {
 //		return
 //	}
 //	fmt.Println(account.ID, account.Name) // 输出: 12345 Alice
-func AccountInfo(ctx context.Context) (info structs.AccountInfo) {
+func AccountInfo(ctx context.Context) (info define.AccountInfo) {
 	if ctx == nil {
 		return info
 	}
 
 	iface := ctx.Value(AccountInfoKey)
-	val, ok := iface.(*structs.AccountInfo)
+	val, ok := iface.(*define.AccountInfo)
 	if !ok {
 		return info
 	}
@@ -289,5 +289,5 @@ func TestSetAccountInfo(ctx context.Context, id uint64) context.Context {
 	if !Test() {
 		return ctx
 	}
-	return context.WithValue(ctx, AccountInfoKey, &structs.AccountInfo{AccountId: id, TemplateIDs: []string{fmt.Sprintf("%d", id)}})
+	return context.WithValue(ctx, AccountInfoKey, &define.AccountInfo{AccountId: id, TemplateIDs: []string{fmt.Sprintf("%d", id)}})
 }

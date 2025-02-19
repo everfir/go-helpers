@@ -1,4 +1,4 @@
-package structs
+package define
 
 type AccountConfig struct {
 	UrlEnv map[string]string `json:"url_env"`

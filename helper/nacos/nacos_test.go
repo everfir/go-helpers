@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/everfir/go-helpers/define"
 	"github.com/everfir/go-helpers/helper/nacos"
-	"github.com/everfir/go-helpers/internal/structs"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +18,7 @@ func TestNacosConfig(t *testing.T) {
 
 	// 测试用例1：获取配置
 	t.Run("GetConfig", func(t *testing.T) {
-		var config *structs.Config[map[string]bool]
+		var config *define.Config[map[string]bool]
 		config, err := nacos.GetConfigFromNacosAndConfigOnChange[map[string]bool](client, "shutdown.json")
 		if err != nil {
 			t.Fatalf("Failed to get config: %v", err)
@@ -30,7 +30,7 @@ func TestNacosConfig(t *testing.T) {
 
 	// 测试用例2：配置更新监听
 	t.Run("ConfigUpdate", func(t *testing.T) {
-		var config *structs.Config[map[string]bool]
+		var config *define.Config[map[string]bool]
 		config, err := nacos.GetConfigFromNacosAndConfigOnChange[map[string]bool](client, "shutdown.json")
 		if err != nil {
 			t.Fatalf("Failed to get config: %v", err)

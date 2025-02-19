@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/everfir/go-helpers/define"
 	"github.com/everfir/go-helpers/env"
 	"github.com/everfir/go-helpers/internal/helper/encode"
 	"github.com/everfir/go-helpers/internal/helper/slice"
-	"github.com/everfir/go-helpers/internal/structs"
 	"github.com/everfir/logger-go"
 	"github.com/everfir/logger-go/structs/field"
 	"github.com/expr-lang/expr"
@@ -157,7 +157,7 @@ func (rule *TrafficRule) Validate() error {
 func (rule *TrafficRule) Group(ctx context.Context) (group TrafficGroup) {
 	group = TrafficGroupA
 
-	var accountInfo structs.AccountInfo = env.AccountInfo(ctx)
+	var accountInfo define.AccountInfo = env.AccountInfo(ctx)
 
 	// 如果在白名单中，直接分组为B
 	if _, exist := slice.Find(rule.WhiteList, fmt.Sprintf("%d", accountInfo.AccountId)); exist {
@@ -223,7 +223,7 @@ func (rule *TrafficRule) Group(ctx context.Context) (group TrafficGroup) {
 	return group
 }
 
-func makeParam(ctx context.Context, accountInfo *structs.AccountInfo) (ret map[string]interface{}) {
+func makeParam(ctx context.Context, accountInfo *define.AccountInfo) (ret map[string]interface{}) {
 	templateIds := make([]interface{}, 0, len(accountInfo.TemplateIDs))
 	for _, id := range accountInfo.TemplateIDs {
 		templateIds = append(templateIds, id)
