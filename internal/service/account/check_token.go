@@ -4,20 +4,21 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/everfir/go-helpers/define"
-	"github.com/everfir/go-helpers/internal/helper/nacos"
 	"io"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/everfir/go-helpers/define"
+	. "github.com/everfir/go-helpers/define"
+	"github.com/everfir/go-helpers/internal/helper/nacos"
+
 	"github.com/everfir/go-helpers/env"
-	"github.com/everfir/go-helpers/internal/structs"
 	util_http "github.com/everfir/go-helpers/internal/util/http"
 )
 
-var getAccountConfig func() *define.Config[structs.AccountConfig] = sync.OnceValue(func() *define.Config[structs.AccountConfig] {
-	config, err := nacos.GetConfigFromNacosAndConfigOnChange[structs.AccountConfig](nacos.GetNacosClient(), "account_config.json")
+var getAccountConfig func() *Config[AccountConfig] = sync.OnceValue(func() *Config[AccountConfig] {
+	config, err := nacos.GetConfigFromNacosAndConfigOnChange[AccountConfig](nacos.GetNacosClient(), "account_config.json")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -42,10 +43,10 @@ type CheckTokenReq struct {
 }
 
 type CheckTokenResp struct {
-	AccountInfo *structs.AccountInfo `json:"account_info,omitempty"`
-	Valid       bool                 `json:"valid,omitempty"`
-	ErrCode     uint32               `json:"err_code,omitempty"`
-	ErrMsg      string               `json:"err_msg,omitempty"`
+	AccountInfo *define.AccountInfo `json:"account_info,omitempty"`
+	Valid       bool                `json:"valid,omitempty"`
+	ErrCode     uint32              `json:"err_code,omitempty"`
+	ErrMsg      string              `json:"err_msg,omitempty"`
 }
 
 var (
