@@ -38,3 +38,27 @@ func Experimental(ctx context.Context, feature string) bool {
 
 	return getGrayConfig().Get()[business].Experimental(ctx, feature)
 }
+
+// GetAllEnableFeature 获取所有启动状态的feat名称
+func GetAllEnableFeature(ctx context.Context) []string {
+	business := env.Business(ctx)
+	if business == "" {
+		return nil
+	}
+
+	config := getGrayConfig().Get()
+
+	// 业务没有对应的配置，认为此业务是稳定的业务，直接返回 false
+	if _, exist := config[business]; !exist {
+		return nil
+	}
+
+	ret := make([]string, 0, len(config[business].Feature))
+	for feat, rule := range config[business].Feature {
+		if rule.Enable {
+			ret = append(ret, feat)
+		}
+	}
+
+	return ret
+}
