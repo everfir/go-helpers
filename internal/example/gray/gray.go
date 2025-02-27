@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/everfir/go-helpers/consts"
 	"github.com/everfir/go-helpers/env"
 	"github.com/everfir/go-helpers/gray"
 	"github.com/everfir/go-helpers/middleware"
@@ -202,10 +203,10 @@ func makeRequest(users [][]string) {
 		}
 
 		req.Header.Add("account_id", user[0])
-		req.Header.Add(env.BusinessKey.String(), "helper_test")
-		req.Header.Add(env.VersionKey.String(), "0.0.10")
-		req.Header.Add(env.PlatformKey.String(), string(user[1]))
-		req.Header.Add(env.DeviceKey.String(), env.Dev_Phone.String())
+		req.Header.Add(consts.BusinessKey.String(), "helper_test")
+		req.Header.Add(consts.VersionKey.String(), "0.0.10")
+		req.Header.Add(consts.PlatformKey.String(), string(user[1]))
+		req.Header.Add(consts.DeviceKey.String(), consts.Dev_Phone.String())
 
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {

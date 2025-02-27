@@ -9,16 +9,17 @@ import (
 	"sync"
 	"time"
 
+	"github.com/everfir/go-helpers/consts"
 	"github.com/everfir/go-helpers/define"
-	. "github.com/everfir/go-helpers/define"
+	"github.com/everfir/go-helpers/define/config"
 	"github.com/everfir/go-helpers/internal/helper/nacos"
 
 	"github.com/everfir/go-helpers/env"
 	util_http "github.com/everfir/go-helpers/internal/util/http"
 )
 
-var getAccountConfig func() *Config[AccountConfig] = sync.OnceValue(func() *Config[AccountConfig] {
-	config, err := nacos.GetConfigAndListen[AccountConfig](nacos.GetNacosClient(), "account_config.json")
+var getAccountConfig func() *config.NacosConfig[define.AccountConfig] = sync.OnceValue(func() *config.NacosConfig[define.AccountConfig] {
+	config, err := nacos.GetConfigAndListen[define.AccountConfig](nacos.GetNacosClient(), "account_config.json")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -33,9 +34,9 @@ var getAccountConfig func() *Config[AccountConfig] = sync.OnceValue(func() *Conf
 
 func getTokenUrl() string {
 	if env.Prod() {
-		return getAccountConfig().Get().UrlEnv[env.EnvProd]
+		return getAccountConfig().Get().UrlEnv[consts.EnvProd]
 	}
-	return getAccountConfig().Get().UrlEnv[env.EnvTest]
+	return getAccountConfig().Get().UrlEnv[consts.EnvTest]
 }
 
 type CheckTokenReq struct {

@@ -8,14 +8,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/everfir/go-helpers/define"
-	"github.com/everfir/go-helpers/env"
+	"github.com/everfir/go-helpers/consts"
+	"github.com/everfir/go-helpers/define/config"
 	"github.com/everfir/go-helpers/internal/helper/nacos"
-	"github.com/everfir/go-helpers/internal/structs"
+	. "github.com/everfir/go-helpers/internal/structs"
 )
 
-var getBusinessConfig func() *define.Config[structs.BusinessConfig] = sync.OnceValue(func() *define.Config[structs.BusinessConfig] {
-	config, err := nacos.GetConfigAndListen[structs.BusinessConfig](nacos.GetNacosClient(), "business.json")
+var getBusinessConfig func() *config.NacosConfig[BusinessConfig] = sync.OnceValue(func() *config.NacosConfig[BusinessConfig] {
+	config, err := nacos.GetConfigAndListen[BusinessConfig](nacos.GetNacosClient(), "business.json")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -24,11 +24,11 @@ var getBusinessConfig func() *define.Config[structs.BusinessConfig] = sync.OnceV
 
 func BusinessMiddleware(c *gin.Context) {
 	// 根据header中的字段来确定业务信息
-	business := strings.ToLower(c.GetHeader(env.BusinessKey.String()))
-	platform := strings.ToLower(c.GetHeader(env.PlatformKey.String()))
-	version := strings.ToLower(c.GetHeader(env.VersionKey.String()))
-	device := strings.ToLower(c.GetHeader(env.DeviceKey.String()))
-	appType := strings.ToLower(c.GetHeader(env.AppTypeKey.String()))
+	business := strings.ToLower(c.GetHeader(consts.BusinessKey.String()))
+	platform := strings.ToLower(c.GetHeader(consts.PlatformKey.String()))
+	version := strings.ToLower(c.GetHeader(consts.VersionKey.String()))
+	device := strings.ToLower(c.GetHeader(consts.DeviceKey.String()))
+	appType := strings.ToLower(c.GetHeader(consts.AppTypeKey.String()))
 
 	valid := getBusinessConfig().Get().Valid(business)
 	if !valid {
@@ -40,11 +40,11 @@ func BusinessMiddleware(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	ctx = context.WithValue(ctx, env.BusinessKey, business)
-	ctx = context.WithValue(ctx, env.PlatformKey, platform)
-	ctx = context.WithValue(ctx, env.DeviceKey, device)
-	ctx = context.WithValue(ctx, env.VersionKey, version)
-	ctx = context.WithValue(ctx, env.AppTypeKey, appType)
+	ctx = context.WithValue(ctx, consts.BusinessKey, business)
+	ctx = context.WithValue(ctx, consts.PlatformKey, platform)
+	ctx = context.WithValue(ctx, consts.DeviceKey, device)
+	ctx = context.WithValue(ctx, consts.VersionKey, version)
+	ctx = context.WithValue(ctx, consts.AppTypeKey, appType)
 	c.Request = c.Request.WithContext(ctx)
 
 	c.Next()

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/everfir/go-helpers/consts"
 	"github.com/everfir/go-helpers/env"
 	"github.com/everfir/logger-go"
 	"github.com/everfir/logger-go/structs/field"
@@ -28,11 +29,11 @@ func (c *TraceTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
 
 	// header
-	req.Header.Set(env.BusinessKey.String(), env.Business(ctx))
-	req.Header.Set(env.VersionKey.String(), env.Version(ctx))
-	req.Header.Set(env.PlatformKey.String(), env.Platform(ctx).String())
-	req.Header.Set(env.DeviceKey.String(), env.Device(ctx).String())
-	req.Header.Set(env.AppTypeKey.String(), env.AppType(ctx).String())
+	req.Header.Set(consts.BusinessKey.String(), env.Business(ctx))
+	req.Header.Set(consts.VersionKey.String(), env.Version(ctx))
+	req.Header.Set(consts.PlatformKey.String(), env.Platform(ctx).String())
+	req.Header.Set(consts.DeviceKey.String(), env.Device(ctx).String())
+	req.Header.Set(consts.AppTypeKey.String(), env.AppType(ctx).String())
 	logger.Info(ctx, "http request", field.Any("header", req.Header))
 
 	// Call the next RoundTripper (default transport in this case)

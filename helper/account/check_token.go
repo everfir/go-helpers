@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/everfir/go-helpers/env"
+	"github.com/everfir/go-helpers/consts"
 	"github.com/everfir/go-helpers/internal/service/account"
 )
 
@@ -27,6 +27,6 @@ func CheckToken(ctx context.Context, token string) (nctx context.Context, err er
 	}
 
 	// 将用户信息存储到 Context 中
-	nctx = context.WithValue(ctx, env.AccountInfoKey, accountInfo.AccountInfo)
+	nctx = context.WithValue(ctx, consts.AccountInfoKey, accountInfo.AccountInfo)
 	return nctx, nil
 }
