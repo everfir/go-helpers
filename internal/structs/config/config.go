@@ -1,4 +1,4 @@
-package define
+package config
 
 import "sync"
 
@@ -17,11 +17,13 @@ type Config[T any] struct {
 func (config *Config[T]) Get() T {
 	config.lock.RLock()
 	defer config.lock.RUnlock()
+
 	return *config.Data
 }
 
 func (config *Config[T]) Set(data *T) {
 	config.lock.Lock()
 	defer config.lock.Unlock()
-	*config.Data = *data
+
+	config.Data = data
 }

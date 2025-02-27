@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/everfir/go-helpers/consts"
 	"github.com/everfir/go-helpers/define"
 )
 
@@ -32,9 +33,9 @@ import (
 //	    log.Println("running in test environment group")
 //	}
 var Env func() string = sync.OnceValue[string](func() string {
-	env := os.Getenv(EnvKey.String())
+	env := os.Getenv(consts.EnvKey.String())
 	if env == "" {
-		env = EnvTest
+		env = consts.EnvTest
 	}
 	return env
 })
@@ -51,7 +52,7 @@ var Env func() string = sync.OnceValue[string](func() string {
 //	    fmt.Println("当前是测试环境")
 //	}
 func Test() bool {
-	return Env() == string(EnvTest)
+	return Env() == string(consts.EnvTest)
 }
 
 // Prod 判断当前环境是否为生产环境（Prod）。
@@ -66,7 +67,7 @@ func Test() bool {
 //	    fmt.Println("当前是生产环境")
 //	}
 func Prod() bool {
-	return Env() == string(EnvProd)
+	return Env() == string(consts.EnvProd)
 }
 
 // Idc 获取当前服务的 IDC（机房）信息。
@@ -80,9 +81,9 @@ func Prod() bool {
 //
 //	fmt.Println(Idc()) // 可能输出: "IDC_BJ" 或环境变量中设置的值
 var Idc func() string = sync.OnceValue[string](func() string {
-	idc := os.Getenv(IdcKey.String())
+	idc := os.Getenv(consts.IdcKey.String())
 	if idc == "" {
-		return IDC_BJ
+		return consts.IDC_BJ
 	}
 	return idc
 })
@@ -98,7 +99,7 @@ var Idc func() string = sync.OnceValue[string](func() string {
 //	    fmt.Println("当前 IDC 在北京")
 //	}
 func CN() bool {
-	return Idc() == IDC_BJ
+	return Idc() == consts.IDC_BJ
 }
 
 // RF 判断当前 IDC（Internet Data Center）是否位于 RF 机房
@@ -112,7 +113,7 @@ func CN() bool {
 //	    fmt.Println("当前 IDC 在 RF 机房")
 //	}
 func RF() bool {
-	return Idc() == IDC_RF
+	return Idc() == consts.IDC_RF
 }
 
 // Business: 从上下文中获取当前业务
@@ -123,7 +124,7 @@ func Business(ctx context.Context) string {
 		return ""
 	}
 
-	iface := ctx.Value(BusinessKey)
+	iface := ctx.Value(consts.BusinessKey)
 	business, ok := iface.(string)
 	if !ok {
 		return ""
@@ -158,7 +159,7 @@ func AccountInfo(ctx context.Context) (info define.AccountInfo) {
 		return info
 	}
 
-	iface := ctx.Value(AccountInfoKey)
+	iface := ctx.Value(consts.AccountInfoKey)
 	val, ok := iface.(*define.AccountInfo)
 	if !ok {
 		return info
@@ -168,78 +169,78 @@ func AccountInfo(ctx context.Context) (info define.AccountInfo) {
 	return
 }
 
-func Platform(ctx context.Context) TDevicePlatform {
+func Platform(ctx context.Context) consts.TDevicePlatform {
 	if ctx == nil {
-		return DP_Unknow
+		return consts.DP_Unknow
 	}
 
-	iface := ctx.Value(PlatformKey)
+	iface := ctx.Value(consts.PlatformKey)
 	platform, ok := iface.(string)
 	if !ok {
-		return DP_Unknow
+		return consts.DP_Unknow
 	}
 
-	return TDevicePlatform(strings.ToLower(platform))
+	return consts.TDevicePlatform(strings.ToLower(platform))
 }
 
 // IOS 判断平台是否为 IOS
 func IOS(ctx context.Context) bool {
-	return Platform(ctx) == DP_IOS
+	return Platform(ctx) == consts.DP_IOS
 }
 
 // Android 判断平台是否为 Android
 func Android(ctx context.Context) bool {
-	return Platform(ctx) == DP_Android
+	return Platform(ctx) == consts.DP_Android
 }
 
 // Mac 判断平台是否为 MacOS
 func Mac(ctx context.Context) bool {
-	return Platform(ctx) == DP_MacOS
+	return Platform(ctx) == consts.DP_MacOS
 }
 
 // Windows 判断平台是否为 Windows
 func Windows(ctx context.Context) bool {
-	return Platform(ctx) == DP_Windows
+	return Platform(ctx) == consts.DP_Windows
 }
 
 // Linux 判断平台是否为 Linux
 func Linux(ctx context.Context) bool {
-	return Platform(ctx) == DP_Linux
+	return Platform(ctx) == consts.DP_Linux
 }
 
 // Ipad 判断平台是否为 iPadOS
 func Ipad(ctx context.Context) bool {
-	return Platform(ctx) == DP_IpadOS
+	return Platform(ctx) == consts.DP_IpadOS
 }
 
 // Device 从上下文中获取设备信息，返回对应的 Device 类型
-func Device(ctx context.Context) TDevice {
+func Device(ctx context.Context) consts.TDevice {
 	if ctx == nil {
-		return Dev_Unknow
+		return consts.Dev_Unknow
 	}
 
-	iface := ctx.Value(DeviceKey)
+	iface := ctx.Value(consts.DeviceKey)
 	device, ok := iface.(string)
 	if !ok {
-		return Dev_Unknow
+		return consts.Dev_Unknow
 	}
 
-	return TDevice(strings.ToLower(device))
+	return consts.TDevice(strings.ToLower(device))
 }
 
 // Phone 判断设备是否为手机
 func Phone(ctx context.Context) bool {
-	return Device(ctx) == Dev_Phone
+	return Device(ctx) == consts.Dev_Phone
 }
 
 // PC 判断设备是否为个人电脑
 func PC(ctx context.Context) bool {
-	return Device(ctx) == Dev_PC
+	return Device(ctx) == consts.Dev_PC
 }
 
 // IPad 判断设备是否为 iPad
 func IPad(ctx context.Context) bool {
-	return Device(ctx) == Dev_IPad
+	return Device(ctx) == consts.Dev_IPad
 }
 
 func Version(ctx context.Context) string {
@@ -247,7 +248,7 @@ func Version(ctx context.Context) string {
 		return ""
 	}
 
-	iface := ctx.Value(VersionKey)
+	iface := ctx.Value(consts.VersionKey)
 	version, ok := iface.(string)
 	if !ok {
 		return ""
@@ -258,30 +259,30 @@ func Version(ctx context.Context) string {
 
 // AppType 根据给定的 context 获取应用类型（app、miniapp 或 web）。
 // 它从 context 中提取存储的 AppTypeKey 值，并尝试将其转换为 TAppType。
-func AppType(ctx context.Context) TAppType {
+func AppType(ctx context.Context) consts.TAppType {
 	if ctx == nil {
 		return ""
 	}
 
-	iface := ctx.Value(AppTypeKey)
+	iface := ctx.Value(consts.AppTypeKey)
 	appType, ok := iface.(string)
 	if !ok {
 		return ""
 	}
 
-	return TAppType(strings.ToLower(appType))
+	return consts.TAppType(strings.ToLower(appType))
 }
 
 func App(ctx context.Context) bool {
-	return AppType(ctx) == AppType_App
+	return AppType(ctx) == consts.AppType_App
 }
 
 func MiniApp(ctx context.Context) bool {
-	return AppType(ctx) == AppType_MiniApp
+	return AppType(ctx) == consts.AppType_MiniApp
 }
 
 func Web(ctx context.Context) bool {
-	return AppType(ctx) == AppType_Web
+	return AppType(ctx) == consts.AppType_Web
 }
 
 // TestSetAccountInfo:justForTest
@@ -289,5 +290,5 @@ func TestSetAccountInfo(ctx context.Context, id uint64) context.Context {
 	if !Test() {
 		return ctx
 	}
-	return context.WithValue(ctx, AccountInfoKey, &define.AccountInfo{AccountId: id, TemplateIDs: []string{fmt.Sprintf("%d", id)}})
+	return context.WithValue(ctx, consts.AccountInfoKey, &define.AccountInfo{AccountId: id, TemplateIDs: []string{fmt.Sprintf("%d", id)}})
 }

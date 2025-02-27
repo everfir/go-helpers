@@ -1,4 +1,4 @@
-package env
+package consts
 
 type IDC uint8
 

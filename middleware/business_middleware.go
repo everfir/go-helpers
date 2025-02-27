@@ -15,7 +15,7 @@ import (
 )
 
 var getBusinessConfig func() *define.Config[structs.BusinessConfig] = sync.OnceValue(func() *define.Config[structs.BusinessConfig] {
-	config, err := nacos.GetConfigFromNacosAndConfigOnChange[structs.BusinessConfig](nacos.GetNacosClient(), "business.json")
+	config, err := nacos.GetConfigAndListen[structs.BusinessConfig](nacos.GetNacosClient(), "business.json")
 	if err != nil {
 		panic(err.Error())
 	}

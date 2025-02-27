@@ -18,7 +18,7 @@ import (
 )
 
 var getAccountConfig func() *Config[AccountConfig] = sync.OnceValue(func() *Config[AccountConfig] {
-	config, err := nacos.GetConfigFromNacosAndConfigOnChange[AccountConfig](nacos.GetNacosClient(), "account_config.json")
+	config, err := nacos.GetConfigAndListen[AccountConfig](nacos.GetNacosClient(), "account_config.json")
 	if err != nil {
 		panic(err.Error())
 	}

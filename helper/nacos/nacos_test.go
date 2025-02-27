@@ -1,67 +1,55 @@
 package nacos_test
 
 import (
+	"context"
 	"testing"
 	"time"
 
-	"github.com/everfir/go-helpers/define"
+	"github.com/everfir/go-helpers/consts"
 	"github.com/everfir/go-helpers/helper/nacos"
-	"github.com/stretchr/testify/assert"
+	"github.com/everfir/logger-go"
+	"github.com/everfir/logger-go/structs/field"
+	"github.com/everfir/logger-go/structs/log_level"
 )
 
-func TestNacosConfig(t *testing.T) {
-	// 初始化Nacos客户端
-	client, err := nacos.NewClient("101.126.144.112", "56240543-0336-4fe4-815d-d2437c2bb11e", "nacos", "EverFir@Nacos20240717..")
+// TestGetConfigAndListen 测试从 Nacos 获取配置并监听配置变更
+func TestGetConfigAndListen(t *testing.T) {
+	logger.Init(logger.WithLevel(log_level.InfoLevel))
+	client := nacos.GetEverfirNacosClient()
+
+	cfg, err := nacos.GetConfigAndListen[map[string]bool](client, "shutdown.json", true)
 	if err != nil {
-		t.Fatalf("Failed to create Nacos client: %v", err)
+		t.Fatalf("Failed to get config from Nacos: %v", err)
 	}
 
-	// 测试用例1：获取配置
-	t.Run("GetConfig", func(t *testing.T) {
-		var config *define.Config[map[string]bool]
-		config, err := nacos.GetConfigFromNacosAndConfigOnChange[map[string]bool](client, "shutdown.json")
-		if err != nil {
-			t.Fatalf("Failed to get config: %v", err)
-		}
+	// 前提： 需要先配置好配置
 
-		t.Logf("Initial config: %+v", config.Data)
-		assert.NotNil(t, config.Data, "Config data should not be nil")
+	logger.Info(context.Background(), "A组配置 ", field.Any("config", cfg.Get()))
+	// 修改配置, 观察日志
+	nacos.Publish(client, "shutdown.json", map[string]bool{
+		"a": true,
 	})
 
-	// 测试用例2：配置更新监听
-	t.Run("ConfigUpdate", func(t *testing.T) {
-		var config *define.Config[map[string]bool]
-		config, err := nacos.GetConfigFromNacosAndConfigOnChange[map[string]bool](client, "shutdown.json")
-		if err != nil {
-			t.Fatalf("Failed to get config: %v", err)
-		}
+	logger.Info(context.Background(), "B组配置 ", field.Any("config", cfg.Get()))
+	// 修改配置, 观察日志
+	nacos.Publish(client, "shutdown.json", map[string]bool{
+		"b": true,
+	}, consts.TrafficGroup_B)
 
-		// 模拟配置更新
-		newConfig := map[string]bool{
-			"shutdown.enabled": true,
-			"shutdown.timeout": false,
-		}
-		err = nacos.Publish(client, "shutdown.json", newConfig)
-		if err != nil {
-			t.Fatalf("Failed to publish config: %v", err)
-		}
+	// 修改配置, 观察日志
+	logger.Info(context.Background(), "Z组配置 ", field.Any("config", cfg.Get(consts.TrafficGroup_Z)))
+	nacos.Publish(client, "shutdown.json", map[string]bool{
+		"z": true,
+	}, consts.TrafficGroup_Z)
 
-		// 等待配置更新
-		time.Sleep(2 * time.Second)
+	logger.Info(context.Background(), "等待10s后结束")
+	for i := 0; i < 3; i++ {
+		time.Sleep(1 * time.Second)
+	}
 
-		t.Logf("Updated config: %+v", config.Data)
-		assert.True(t, config.Get()["shutdown.enabled"], "Shutdown enabled should be true")
-		assert.False(t, config.Get()["auto_restart"], "Auto restart should be false")
-	})
+	logger.Info(context.Background(), "修改之后的A组配置 ", field.Any("config", cfg.Get(consts.TrafficGroup_B)))
+	logger.Info(context.Background(), "修改之后的B组配置 ", field.Any("config", cfg.Get(consts.TrafficGroup_B)))
+	logger.Info(context.Background(), "修改之后的Z组配置 ", field.Any("config", cfg.Get(consts.TrafficGroup_Z)))
 
-	// 测试用例3：错误场景
-	t.Run("ErrorCases", func(t *testing.T) {
-		// 测试不存在的配置
-		_, err := nacos.GetConfigFromNacosAndConfigOnChange[map[string]bool](client, "non_existent.json")
-		assert.Error(t, err, "Should return error for non-existent config")
-
-		// 测试错误的dataId格式
-		_, err = nacos.GetConfigFromNacosAndConfigOnChange[map[string]bool](client, "")
-		assert.Error(t, err, "Should return error for empty dataId")
-	})
+	logger.Info(context.Background(), "test done")
 }

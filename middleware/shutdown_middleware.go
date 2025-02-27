@@ -4,14 +4,14 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/everfir/go-helpers/define"
+	"github.com/everfir/go-helpers/define/config"
 	"github.com/everfir/go-helpers/env"
 	"github.com/everfir/go-helpers/internal/helper/nacos"
 	"github.com/gin-gonic/gin"
 )
 
-var shutdownConfig func() *define.Config[map[string]bool] = sync.OnceValue(func() *define.Config[map[string]bool] {
-	config, err := nacos.GetConfigFromNacosAndConfigOnChange[map[string]bool](nacos.GetNacosClient(), "shutdown.json")
+var shutdownConfig func() *config.NacosConfig[map[string]bool] = sync.OnceValue(func() *config.NacosConfig[map[string]bool] {
+	config, err := nacos.GetConfigAndListen[map[string]bool](nacos.GetNacosClient(), "shutdown.json")
 	if err != nil {
 		panic(err.Error())
 	}

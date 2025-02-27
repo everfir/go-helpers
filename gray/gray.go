@@ -11,7 +11,7 @@ import (
 )
 
 var getGrayConfig func() *define.Config[gray.GrayConfig] = sync.OnceValue(func() *define.Config[gray.GrayConfig] {
-	config, err := nacos.GetConfigFromNacosAndConfigOnChange[gray.GrayConfig](nacos.GetNacosClient(), "gray.json")
+	config, err := nacos.GetConfigAndListen[gray.GrayConfig](nacos.GetNacosClient(), "gray.json")
 	if err != nil {
 		panic(err.Error())
 	}
