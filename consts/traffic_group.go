@@ -9,6 +9,19 @@ func NewTrafficGroup(group uint8) TrafficGroup {
 	return g
 }
 
+func NewTrafficGroupFromString(group string) TrafficGroup {
+	if len(group) != 1 {
+		return TrafficGroup_A
+	}
+
+	var g = TrafficGroup(group[0] - 'a')
+	if g < TrafficGroup_A || g >= TrafficGroup_Unknow {
+		return TrafficGroup_A
+	}
+
+	return g
+}
+
 type TrafficGroup uint8
 
 const (

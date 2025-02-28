@@ -2,6 +2,8 @@ package gray
 
 import (
 	"context"
+
+	"github.com/everfir/go-helpers/consts"
 )
 
 // FeatureConfig: AB实验配置
@@ -28,11 +30,20 @@ func (e *FeatureConfig) Validate() error {
 	return nil
 }
 
-func (e *FeatureConfig) Group(ctx context.Context) TrafficGroup {
+// Group: 根据分流规则确定分组
+func (e *FeatureConfig) Group(ctx context.Context) consts.TrafficGroup {
 	for _, rule := range e.Rule {
-		if rule.Group(ctx) == TrafficGroupB {
-			return TrafficGroupB
+		// 该分流规则已经关闭，跳过
+		if !rule.Enable {
+			continue
+		}
+
+		// 根据分流规则确定分组
+		if rule.Group(ctx) {
+			return consts.NewTrafficGroupFromString(rule.TargetGroup)
 		}
 	}
-	return TrafficGroupA
+
+	// 没有匹配到任何分流规则，返回默认分组
+	return consts.TrafficGroup_A
 }

@@ -2,9 +2,7 @@ package env
 
 import (
 	"context"
-	"fmt"
 	"os"
-	"strings"
 	"sync"
 
 	"github.com/everfir/go-helpers/consts"
@@ -175,12 +173,12 @@ func Platform(ctx context.Context) consts.TDevicePlatform {
 	}
 
 	iface := ctx.Value(consts.PlatformKey)
-	platform, ok := iface.(string)
+	platform, ok := iface.(consts.TDevicePlatform)
 	if !ok {
 		return consts.DP_Unknow
 	}
 
-	return consts.TDevicePlatform(strings.ToLower(platform))
+	return platform
 }
 
 // IOS 判断平台是否为 IOS
@@ -220,12 +218,12 @@ func Device(ctx context.Context) consts.TDevice {
 	}
 
 	iface := ctx.Value(consts.DeviceKey)
-	device, ok := iface.(string)
+	device, ok := iface.(consts.TDevice)
 	if !ok {
 		return consts.Dev_Unknow
 	}
 
-	return consts.TDevice(strings.ToLower(device))
+	return device
 }
 
 // Phone 判断设备是否为手机
@@ -265,12 +263,12 @@ func AppType(ctx context.Context) consts.TAppType {
 	}
 
 	iface := ctx.Value(consts.AppTypeKey)
-	appType, ok := iface.(string)
+	appType, ok := iface.(consts.TAppType)
 	if !ok {
 		return ""
 	}
 
-	return consts.TAppType(strings.ToLower(appType))
+	return appType
 }
 
 func App(ctx context.Context) bool {
@@ -285,10 +283,16 @@ func Web(ctx context.Context) bool {
 	return AppType(ctx) == consts.AppType_Web
 }
 
-// TestSetAccountInfo:justForTest
-func TestSetAccountInfo(ctx context.Context, id uint64) context.Context {
-	if !Test() {
-		return ctx
+func ExperimentGroup(ctx context.Context) consts.TrafficGroup {
+	if ctx == nil {
+		return consts.TrafficGroup_A
 	}
-	return context.WithValue(ctx, consts.AccountInfoKey, &define.AccountInfo{AccountId: id, TemplateIDs: []string{fmt.Sprintf("%d", id)}})
+
+	iface := ctx.Value(consts.ExperimentGroupKey)
+	group, ok := iface.(consts.TrafficGroup)
+	if !ok {
+		return consts.TrafficGroup_A
+	}
+
+	return group
 }

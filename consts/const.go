@@ -26,8 +26,6 @@ const (
 	// IdcKey: 环境变量中标识服务所处idc
 	IdcKey ContextKey = "IDC"
 
-	// RouterKey: 请求头中携带路由信息, 用于AB分组
-	RouterKey ContextKey = "x-everifr-router"
 	// DeviceKey: 请求头&上下文中携带设备信息
 	DeviceKey ContextKey = "x-everfir-device"
 	// VersionKey: 请求头&上下文中携带客户端版本信息
@@ -40,6 +38,8 @@ const (
 	BusinessKey ContextKey = "x-everfir-business"
 	// AccountInfoKey: 用户信息，请求头&上下文中携带用户信息
 	AccountInfoKey ContextKey = "x-everfir-account-info"
+	// ExperimentGroupKey: 请求头中携带分组信息, 用于AB分组
+	ExperimentGroupKey ContextKey = "x-everfir-experiment-group"
 )
 
 type TDevicePlatform string
