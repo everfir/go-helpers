@@ -252,6 +252,23 @@ func getConfigAndListen[T any](
 				return
 			}
 
+			// 如果配置结构体实现了 Validator 接口，执行验证
+			if v, ok := any(config.Data).(structs.Validator); ok {
+				if e := v.Validate(); e != nil {
+					logger.Warn(
+						context.TODO(),
+						"[go-helper] Validate config failed",
+						field.String("err", e.Error()),
+					)
+					return
+				}
+			}
+
+			// 如果配置结构体实现了 Formatter 接口，执行格式化
+			if v, ok := any(config.Data).(structs.Formatter); ok {
+				v.Format()
+			}
+
 			// 更新配置并记录日志
 			config.Set(conf)
 			logger.Info(
