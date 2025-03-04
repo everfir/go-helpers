@@ -284,6 +284,7 @@ func getConfigAndListen[T any](
 						"[go-helper] Callback config failed",
 						field.String("err", e.Error()),
 					)
+					return
 				}
 			}
 
@@ -309,6 +310,7 @@ func getConfigAndListen[T any](
 			field.String("group", group),
 			field.String("err", err.Error()),
 		)
+		return
 	}
 
 	return config, nil
