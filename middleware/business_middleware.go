@@ -38,7 +38,16 @@ func BusinessMiddleware(c *gin.Context) {
 	logger.Debug(c.Request.Context(), "device", field.String("device", device))
 	logger.Debug(c.Request.Context(), "appType", field.String("appType", appType))
 
-	valid := getBusinessConfig().Get().Valid(business)
+	cfg, exist := getBusinessConfig().Get()
+	if !exist {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"err_code": http.StatusBadRequest,
+			"err_msg":  "business field in header is not expected, this business does not exist",
+		})
+		return
+	}
+
+	valid := cfg.Valid(business)
 	if !valid {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"err_code": http.StatusBadRequest,

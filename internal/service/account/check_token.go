@@ -34,9 +34,11 @@ var getAccountConfig func() *config.NacosConfig[define.AccountConfig] = sync.Onc
 
 func getTokenUrl() string {
 	if env.Prod() {
-		return getAccountConfig().Get().UrlEnv[consts.EnvProd]
+		cfg, _ := getAccountConfig().Get()
+		return cfg.UrlEnv[consts.EnvProd]
 	}
-	return getAccountConfig().Get().UrlEnv[consts.EnvTest]
+	cfg, _ := getAccountConfig().Get()
+	return cfg.UrlEnv[consts.EnvTest]
 }
 
 type CheckTokenReq struct {

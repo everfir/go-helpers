@@ -30,7 +30,7 @@ func ExperimentGroup(ctx context.Context, feature string, config ...*gray.GrayCo
 		return consts.TrafficGroup_A
 	}
 
-	conf := getGrayConfig().Get()
+	conf, _ := getGrayConfig().Get()
 	if len(config) > 0 && config[0] != nil {
 		conf = *config[0]
 	}
@@ -50,8 +50,7 @@ func GetAllEnableFeature(ctx context.Context) []string {
 		return nil
 	}
 
-	config := getGrayConfig().Get()
-
+	config, _ := getGrayConfig().Get()
 	// 业务没有对应的配置，认为此业务是稳定的业务，直接返回 false
 	if _, exist := config[business]; !exist {
 		return nil

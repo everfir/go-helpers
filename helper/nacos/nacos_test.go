@@ -24,20 +24,23 @@ func TestGetConfigAndListen(t *testing.T) {
 
 	// 前提： 需要先配置好配置
 
-	logger.Info(context.Background(), "A组配置 ", field.Any("config", cfg.Get()))
+	cfgDetail, exist := cfg.Get()
+	logger.Info(context.Background(), "A组配置 ", field.Any("config", cfgDetail), field.Bool("exist", exist))
 	// 修改配置, 观察日志
 	nacos.Publish(client, "shutdown.json", map[string]bool{
 		"a": true,
 	})
 
-	logger.Info(context.Background(), "B组配置 ", field.Any("config", cfg.Get()))
+	cfgDetail, exist = cfg.Get()
+	logger.Info(context.Background(), "B组配置 ", field.Any("config", cfgDetail), field.Bool("exist", exist))
 	// 修改配置, 观察日志
 	nacos.Publish(client, "shutdown.json", map[string]bool{
 		"b": true,
 	}, consts.TrafficGroup_B)
 
 	// 修改配置, 观察日志
-	logger.Info(context.Background(), "Z组配置 ", field.Any("config", cfg.Get(consts.TrafficGroup_Z)))
+	cfgDetail, exist = cfg.Get(consts.TrafficGroup_Z)
+	logger.Info(context.Background(), "Z组配置 ", field.Any("config", cfgDetail), field.Bool("exist", exist))
 	nacos.Publish(client, "shutdown.json", map[string]bool{
 		"z": true,
 	}, consts.TrafficGroup_Z)
@@ -47,9 +50,12 @@ func TestGetConfigAndListen(t *testing.T) {
 		time.Sleep(1 * time.Second)
 	}
 
-	logger.Info(context.Background(), "修改之后的A组配置 ", field.Any("config", cfg.Get(consts.TrafficGroup_B)))
-	logger.Info(context.Background(), "修改之后的B组配置 ", field.Any("config", cfg.Get(consts.TrafficGroup_B)))
-	logger.Info(context.Background(), "修改之后的Z组配置 ", field.Any("config", cfg.Get(consts.TrafficGroup_Z)))
+	cfgDetail, exist = cfg.Get(consts.TrafficGroup_B)
+	logger.Info(context.Background(), "修改之后的A组配置 ", field.Any("config", cfgDetail), field.Bool("exist", exist))
+	cfgDetail, exist = cfg.Get(consts.TrafficGroup_B)
+	logger.Info(context.Background(), "修改之后的B组配置 ", field.Any("config", cfgDetail), field.Bool("exist", exist))
+	cfgDetail, exist = cfg.Get(consts.TrafficGroup_Z)
+	logger.Info(context.Background(), "修改之后的Z组配置 ", field.Any("config", cfgDetail), field.Bool("exist", exist))
 
 	logger.Info(context.Background(), "test done")
 }

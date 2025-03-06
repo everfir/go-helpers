@@ -29,7 +29,13 @@ func ShutdownMiddleware(c *gin.Context) {
 		return
 	}
 
-	if shutdownConfig().Get()[business] {
+	cfg, exist := shutdownConfig().Get()
+	if !exist {
+		c.AbortWithStatus(599)
+		return
+	}
+
+	if cfg[business] {
 		c.AbortWithStatus(599)
 		return
 	}

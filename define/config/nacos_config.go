@@ -38,7 +38,7 @@ type NacosConfig[V any] struct {
 //
 //	config.Get()                    // 获取当前环境的默认配置
 //	config.Get(TrafficGroup_B)      // 获取 B 组的配置，如果不存在则返回 A 组配置
-func (config *NacosConfig[V]) Get(keys ...consts.TrafficGroup) V {
+func (config *NacosConfig[V]) Get(keys ...consts.TrafficGroup) (V, bool) {
 	// 加读锁保护并确保解锁
 	config.lock.RLock()
 	defer config.lock.RUnlock()
@@ -51,11 +51,12 @@ func (config *NacosConfig[V]) Get(keys ...consts.TrafficGroup) V {
 		k = fmt.Sprintf("%s_%s", k, keys[0].Group())
 	}
 
+	var exist bool = true
 	// 如果找不到对应分组的配置，默认使用 A 组配置
-	if _, exist := config.data[k]; !exist {
+	if _, exist = config.data[k]; !exist {
 		k = consts.TrafficGroup_A.Group()
 	}
 
 	// 返回对应的配置数据
-	return config.data[k].Get()
+	return config.data[k].Get(), exist
 }
