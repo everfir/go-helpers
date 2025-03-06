@@ -37,7 +37,7 @@ func (g *Gray) Format() {
 }
 
 // Validate: 校验配置
-func (g Gray) Validate() error {
+func (g *Gray) Validate() error {
 	for _, config := range g.Feature {
 		if err := config.Validate(); err != nil {
 			return err
@@ -46,7 +46,7 @@ func (g Gray) Validate() error {
 	return nil
 }
 
-func (g Gray) Group(ctx context.Context, feature string) consts.TrafficGroup {
+func (g *Gray) Group(ctx context.Context, feature string) consts.TrafficGroup {
 	if _, exist := g.Feature[feature]; !exist {
 		return consts.TrafficGroup_A
 	}

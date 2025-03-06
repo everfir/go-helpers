@@ -30,6 +30,7 @@ func main() {
 							Targets:     map[string][]string{"platform": []string{"ios"}, "device": []string{"phone"}},
 							WhiteList:   []string{"101", "201", "301"},
 							BlackList:   []string{"1001", "2001", "3001"},
+							Expresion:   "user.ctime >= 1741017900",
 							TrafficRate: 0.5,
 						},
 						// {
