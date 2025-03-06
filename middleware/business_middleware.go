@@ -12,6 +12,8 @@ import (
 	"github.com/everfir/go-helpers/define/config"
 	"github.com/everfir/go-helpers/internal/helper/nacos"
 	. "github.com/everfir/go-helpers/internal/structs"
+	"github.com/everfir/logger-go"
+	"github.com/everfir/logger-go/structs/field"
 )
 
 var getBusinessConfig func() *config.NacosConfig[BusinessConfig] = sync.OnceValue(func() *config.NacosConfig[BusinessConfig] {
@@ -30,6 +32,12 @@ func BusinessMiddleware(c *gin.Context) {
 	device := strings.ToLower(c.GetHeader(consts.DeviceKey.String()))
 	appType := strings.ToLower(c.GetHeader(consts.AppTypeKey.String()))
 
+	logger.Debug(c.Request.Context(), "business", field.String("business", business))
+	logger.Debug(c.Request.Context(), "platform", field.String("platform", platform))
+	logger.Debug(c.Request.Context(), "version", field.String("version", version))
+	logger.Debug(c.Request.Context(), "device", field.String("device", device))
+	logger.Debug(c.Request.Context(), "appType", field.String("appType", appType))
+
 	valid := getBusinessConfig().Get().Valid(business)
 	if !valid {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -41,10 +49,10 @@ func BusinessMiddleware(c *gin.Context) {
 
 	ctx := c.Request.Context()
 	ctx = context.WithValue(ctx, consts.BusinessKey, business)
-	ctx = context.WithValue(ctx, consts.PlatformKey, platform)
-	ctx = context.WithValue(ctx, consts.DeviceKey, device)
+	ctx = context.WithValue(ctx, consts.PlatformKey, consts.TDevicePlatform(platform))
+	ctx = context.WithValue(ctx, consts.DeviceKey, consts.TDevice(device))
 	ctx = context.WithValue(ctx, consts.VersionKey, version)
-	ctx = context.WithValue(ctx, consts.AppTypeKey, appType)
+	ctx = context.WithValue(ctx, consts.AppTypeKey, consts.TAppType(appType))
 	c.Request = c.Request.WithContext(ctx)
 
 	c.Next()
