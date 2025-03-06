@@ -54,7 +54,7 @@ func (config *NacosConfig[V]) Get(keys ...consts.TrafficGroup) (V, bool) {
 	var exist bool = true
 	// 如果找不到对应分组的配置，默认使用 A 组配置
 	if _, exist = config.data[k]; !exist {
-		k = consts.TrafficGroup_A.Group()
+		k = fmt.Sprintf("%s_%s", env.Env(), consts.TrafficGroup_A.Group())
 	}
 
 	// 返回对应的配置数据
