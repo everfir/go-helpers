@@ -33,11 +33,13 @@ var getAccountConfig func() *config.NacosConfig[define.AccountConfig] = sync.Onc
 //)
 
 func getTokenUrl() string {
+	cfg, _ := getAccountConfig().Get(consts.TrafficGroup_B)
+
 	if env.Prod() {
-		cfg, _ := getAccountConfig().Get()
 		return cfg.UrlEnv[consts.EnvProd]
 	}
-	cfg, _ := getAccountConfig().Get()
+
+	cfg, _ = getAccountConfig().Get()
 	return cfg.UrlEnv[consts.EnvTest]
 }
 
