@@ -1,6 +1,7 @@
 package nacos
 
 import (
+	"os"
 	"sync"
 
 	"github.com/everfir/go-helpers/consts"
@@ -60,11 +61,19 @@ var authMapping func() map[string][]string = sync.OnceValue(func() map[string][]
 })
 
 func NacosIp() string {
-	return ipMapping()[env.Env()]
+	ret := os.Getenv("EVERFIR_NACOS_IP")
+	if ret == "" {
+		ret = ipMapping()[env.Env()]
+	}
+	return ret
 }
 
 func Namespace() string {
-	return namespaceMapping()[env.Env()]
+	ret := os.Getenv("EVERFIR_NACOS_NAMESPACE")
+	if ret == "" {
+		ret = namespaceMapping()[env.Env()]
+	}
+	return ret
 }
 
 func AuthInfo() (username, passward string) {
