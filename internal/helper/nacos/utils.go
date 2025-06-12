@@ -52,7 +52,7 @@ var authMapping func() map[string][]string = sync.OnceValue(func() map[string][]
 		}
 	case consts.IDC_RF:
 		return map[string][]string{
-			consts.EnvTest: []string{"nacos", "5oadA-c)"},
+			consts.EnvTest: []string{"nacos", "EverFir@Nacos20240717.."},
 			consts.EnvProd: []string{"nacos", "*60gdE8q"},
 		}
 	default:
