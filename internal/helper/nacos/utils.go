@@ -19,7 +19,7 @@ var ipMapping func() map[string]string = sync.OnceValue(func() map[string]string
 	case consts.IDC_RF:
 		return map[string]string{
 			consts.EnvTest: "192.168.0.8",
-			consts.EnvProd: "192.168.0.49",
+			consts.EnvProd: "192.168.3.6",
 		}
 	default:
 		return map[string]string{}
@@ -36,7 +36,7 @@ var namespaceMapping func() map[string]string = sync.OnceValue(func() map[string
 	case consts.IDC_RF:
 		return map[string]string{
 			consts.EnvTest: "93e786d8-09d5-4106-a99c-2eee98f707b6",
-			consts.EnvProd: "d80b88e0-d583-44e3-92f8-4b93164a92c7",
+			consts.EnvProd: "75477861-ea6b-46dd-a6f8-474ef62a2535",
 		}
 	default:
 		return map[string]string{}
