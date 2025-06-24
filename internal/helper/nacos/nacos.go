@@ -19,9 +19,19 @@ import (
 )
 
 var GetNacosClient func() config_client.IConfigClient = sync.OnceValue(func() config_client.IConfigClient {
+	var ctx = context.Background()
+
 	namespace := Namespace()
 	ipAddr := NacosIp()
 	username, passward := AuthInfo()
+	logger.Info(
+		ctx,
+		"[go-helper] GetNacosClient",
+		field.String("namespace", namespace),
+		field.String("ipAddr", ipAddr),
+		field.String("username", username),
+		field.String("passward", passward),
+	)
 
 	cc := constant.ClientConfig{
 		NamespaceId:         namespace,
@@ -49,6 +59,7 @@ var GetNacosClient func() config_client.IConfigClient = sync.OnceValue(func() co
 		panic(fmt.Sprintf("[go-helper] Init nacos client failed: %v ip:%s", err, ipAddr))
 	}
 
+	logger.Info(ctx, "[go-helper] GetNacosClient success")
 	return configClient
 })
 
