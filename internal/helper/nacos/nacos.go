@@ -246,14 +246,6 @@ func getConfigAndListen[T any](
 		v.Format()
 	}
 
-	// 如果配置结构体实现了 Callbacker 接口，执行回调
-	if v, ok := any(config.Data).(structs.Callbacker); ok {
-		if e := v.Callback(); e != nil {
-			err = fmt.Errorf("[go-helper] Callback config failed, config:%w", e)
-			return
-		}
-	}
-
 	// 监听配置变更
 	err = client.ListenConfig(vo.ConfigParam{
 		DataId: dataId,
@@ -286,17 +278,6 @@ func getConfigAndListen[T any](
 			// 如果配置结构体实现了 Formatter 接口，执行格式化
 			if v, ok := any(config.Data).(structs.Formatter); ok {
 				v.Format()
-			}
-
-			if v, ok := any(config.Data).(structs.Callbacker); ok {
-				if e := v.Callback(); e != nil {
-					logger.Warn(
-						context.TODO(),
-						"[go-helper] Callback config failed",
-						field.String("err", e.Error()),
-					)
-					return
-				}
 			}
 
 			// 更新配置并记录日志
