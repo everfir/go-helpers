@@ -67,16 +67,15 @@ func (config *NacosConfig[V]) Get(keys ...consts.TrafficGroup) (V, bool) {
 // - 当某个分组（例如环境分组或灰度分组）的配置发生变更时，收到回调通知。
 //
 // 参数：
-// - name: 分组键，同时也作为内部 Config 的监听器名称键。
-//   - 非灰度场景：通常为当前环境，如 "test"、"prod"。
-//   - 灰度场景：通常为形如 "{env}_{group}" 的完整分组键，如 "test_A"、"test_B"。
-//     必须确保该分组键已在 `NacosConfig.data` 中存在，否则将导致空指针异常。
-//
-// - listener: 实现了 `internal_config.IListener[V]` 的监听器实例，会在目标分组配置更新后接收最新的数据副本。
+//   - name: 监听器名称键，用于在对应的内部 `Config` 上注册该监听器。
+//   - listener: 实现了 `internal_config.IListener[V]` 的监听器实例，会在目标分组配置更新后接收最新的数据副本。
+//   - keys: 可选的流量分组参数。如果提供，则目标分组键为 "{env}_{group}"；
+//     如果不提供，则使用当前环境 `env.Env()` 对应的分组。
+//     注意：必须确保目标分组键已在 `NacosConfig.data` 中存在，否则可能导致空指针异常。
 //
 // 并发：
 // - 本方法内部加写锁，线程安全；监听器回调由内部 `Config.Set` 触发。
-func (config *NacosConfig[V]) RegisterListener(listener internal_config.IListener[V], keys ...consts.TrafficGroup) {
+func (config *NacosConfig[V]) RegisterListener(name string, listener internal_config.IListener[V], keys ...consts.TrafficGroup) {
 	config.lock.Lock()
 	defer config.lock.Unlock()
 
@@ -85,17 +84,19 @@ func (config *NacosConfig[V]) RegisterListener(listener internal_config.IListene
 		k = fmt.Sprintf("%s_%s", k, keys[0].Group())
 	}
 
-	config.data[k].RegisterListener(k, listener)
+	config.data[k].RegisterListener(name, listener)
 }
 
 // UnregisterListener 从指定分组的内部配置中注销监听器。
 //
 // 参数：
-//   - name: 分组键，同时也是注册时使用的监听器名称键。
-//     必须确保该分组键已在 `NacosConfig.data` 中存在，否则将导致空指针异常。
+//   - name: 监听器名称键（与注册时的 name 一致）。
+//   - keys: 可选的流量分组参数。如果提供，则从 "{env}_{group}" 分组注销；
+//     如果不提供，则从当前环境 `env.Env()` 对应的分组注销。
+//     注意：必须确保目标分组键已在 `NacosConfig.data` 中存在，否则可能导致空指针异常。
 //
 // 行为：
-// - 如果对应名称的监听器不存在，内部删除操作为幂等，不会报错。
+// - 如果对应名称的监听器不存在，删除操作为幂等，不会报错。
 //
 // 并发：
 // - 本方法内部加写锁，线程安全。
