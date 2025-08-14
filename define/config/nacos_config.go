@@ -76,11 +76,16 @@ func (config *NacosConfig[V]) Get(keys ...consts.TrafficGroup) (V, bool) {
 //
 // 并发：
 // - 本方法内部加写锁，线程安全；监听器回调由内部 `Config.Set` 触发。
-func (config *NacosConfig[V]) RegisterListener(name string, listener internal_config.IListener[V]) {
+func (config *NacosConfig[V]) RegisterListener(listener internal_config.IListener[V], keys ...consts.TrafficGroup) {
 	config.lock.Lock()
 	defer config.lock.Unlock()
 
-	config.data[name].RegisterListener(name, listener)
+	k := env.Env()
+	if len(keys) > 0 {
+		k = fmt.Sprintf("%s_%s", k, keys[0].Group())
+	}
+
+	config.data[k].RegisterListener(k, listener)
 }
 
 // UnregisterListener 从指定分组的内部配置中注销监听器。
@@ -94,9 +99,14 @@ func (config *NacosConfig[V]) RegisterListener(name string, listener internal_co
 //
 // 并发：
 // - 本方法内部加写锁，线程安全。
-func (config *NacosConfig[V]) UnregisterListener(name string) {
+func (config *NacosConfig[V]) UnregisterListener(name string, keys ...consts.TrafficGroup) {
 	config.lock.Lock()
 	defer config.lock.Unlock()
 
-	config.data[name].UnregisterListener(name)
+	k := env.Env()
+	if len(keys) > 0 {
+		k = fmt.Sprintf("%s_%s", k, keys[0].Group())
+	}
+
+	config.data[k].UnregisterListener(name)
 }
