@@ -60,3 +60,43 @@ func (config *NacosConfig[V]) Get(keys ...consts.TrafficGroup) (V, bool) {
 	// 返回对应的配置数据
 	return config.data[k].Get(), exist
 }
+
+// RegisterListener 为指定分组的内部配置注册监听器。
+//
+// 用途：
+// - 当某个分组（例如环境分组或灰度分组）的配置发生变更时，收到回调通知。
+//
+// 参数：
+// - name: 分组键，同时也作为内部 Config 的监听器名称键。
+//   - 非灰度场景：通常为当前环境，如 "test"、"prod"。
+//   - 灰度场景：通常为形如 "{env}_{group}" 的完整分组键，如 "test_A"、"test_B"。
+//     必须确保该分组键已在 `NacosConfig.data` 中存在，否则将导致空指针异常。
+//
+// - listener: 实现了 `internal_config.IListener[V]` 的监听器实例，会在目标分组配置更新后接收最新的数据副本。
+//
+// 并发：
+// - 本方法内部加写锁，线程安全；监听器回调由内部 `Config.Set` 触发。
+func (config *NacosConfig[V]) RegisterListener(name string, listener internal_config.IListener[V]) {
+	config.lock.Lock()
+	defer config.lock.Unlock()
+
+	config.data[name].RegisterListener(name, listener)
+}
+
+// UnregisterListener 从指定分组的内部配置中注销监听器。
+//
+// 参数：
+//   - name: 分组键，同时也是注册时使用的监听器名称键。
+//     必须确保该分组键已在 `NacosConfig.data` 中存在，否则将导致空指针异常。
+//
+// 行为：
+// - 如果对应名称的监听器不存在，内部删除操作为幂等，不会报错。
+//
+// 并发：
+// - 本方法内部加写锁，线程安全。
+func (config *NacosConfig[V]) UnregisterListener(name string) {
+	config.lock.Lock()
+	defer config.lock.Unlock()
+
+	config.data[name].UnregisterListener(name)
+}
