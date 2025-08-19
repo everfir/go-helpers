@@ -264,7 +264,7 @@ func getConfigAndListen[T any](
 			}
 
 			// 如果配置结构体实现了 Validator 接口，执行验证
-			if v, ok := any(config.Data).(structs.Validator); ok {
+			if v, ok := any(conf).(structs.Validator); ok {
 				if e := v.Validate(); e != nil {
 					logger.Warn(
 						context.TODO(),
@@ -276,7 +276,7 @@ func getConfigAndListen[T any](
 			}
 
 			// 如果配置结构体实现了 Formatter 接口，执行格式化
-			if v, ok := any(config.Data).(structs.Formatter); ok {
+			if v, ok := any(conf).(structs.Formatter); ok {
 				v.Format()
 			}
 
